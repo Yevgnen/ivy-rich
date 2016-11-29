@@ -1,0 +1,35 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:5 \n:nil ^:{} arch:headline author:t
+#+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+OPTIONS: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+OPTIONS: tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
+#+TITLE: README
+#+DATE: <2016-11-29 Tue>
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 25.1.1 (Org mode 9.0.1)
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:auto html-preamble:t
+#+OPTIONS: html-scripts:t html-style:t html5-fancy:nil tex:t
+#+HTML_DOCTYPE: xhtml-strict
+#+HTML_CONTAINER: div
+#+DESCRIPTION:
+#+KEYWORDS:
+#+HTML_LINK_HOME:
+#+HTML_LINK_UP:
+#+HTML_MATHJAX:
+#+HTML_HEAD:
+#+HTML_HEAD_EXTRA:
+#+SUBTITLE:
+#+INFOJS_OPT:
+#+CREATOR: <a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.1.1 (<a href="http://orgmode.org">Org</a> mode 9.0.1)
+#+LATEX_HEADER:
+
+* More friendly interface for ivy
+Currently only ~ivy-switch-buffer~ is supported.
+** Usage
+#+BEGIN_SRC emacs-lisp
+  (require 'ivy-rich)
+#+END_SRC
+* Screenshots
+** ~ivy-switch-buffer~
+[[file:screenshots/buffer.png]]
