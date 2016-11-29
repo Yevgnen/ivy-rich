@@ -33,3 +33,5 @@ Currently only ~ivy-switch-buffer~ is supported.
 * Screenshots
 ** ~ivy-switch-buffer~
 [[file:screenshots/buffer.png]]
+* Notice
+For better user experience, a large ~*-max-length~ should be set.

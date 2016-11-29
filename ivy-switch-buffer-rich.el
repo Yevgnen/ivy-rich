@@ -39,16 +39,25 @@
 
 (defcustom ivy--switch-buffer-name-max-length
   40
-  "Max length of buffer name."
+  "Max length of buffer name.
+
+For better user experience, the max length should be set to loose to
+hold the buffer name."
   :type 'integer)
 
 (defcustom ivy--switch-buffer-mode-max-length
   18
-  "Max length of mode name."
+  "Max length of mode name.
+
+For better user experience, the max length should be set to loose to
+hold the mode name."
   :type 'integer)
 (defcustom ivy--switch-buffer-project-max-length
   15
-  "Max length of project name."
+  "Max length of project name.
+
+For better user experience, the max length should be set to loose
+to hold the project name."
   :type 'integer)
 
 (defcustom ivy--switch-buffer-delimiter
@@ -58,7 +67,9 @@
 
 (defun ivy--switch-buffer-pad (str len)
   "Use space to pad STR to LEN of length."
-  (concat str (make-string (- len (length str)) ? )))
+  (if (< (length str) len)
+      (concat str (make-string (- len (length str)) ? ))
+    str))
 
 (defun ivy--switch-buffer-mode (mode)
   "Transform MODE name to a more friendly format."
