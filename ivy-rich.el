@@ -1,9 +1,9 @@
-;;; ivy-rich.el ---
+;;; ivy-rich.el --- More friendly display transformer for ivy.
 
 ;; Copyright (C) 2016 Yevgnen Koh
 
 ;; Author: Yevgnen Koh <wherejoystarts@gmail.com>
-;; Package-Requires: ((emacs "24.1") (ivy "0.8.0"))
+;; Package-Requires: ((emacs "24.4") (ivy "0.8.0") (projectile "0.15.0"))
 ;; Version: 0.0.1
 ;; Keywords: ivy
 
