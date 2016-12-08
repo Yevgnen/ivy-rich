@@ -30,6 +30,8 @@
 
 (require 'ivy-switch-buffer-rich)
 
+(require 'ivy-projectile-rich)
+
 (defgroup ivy-rich nil
   "More friendly interface (display transformer) for ivy."
   :group 'ivy)
