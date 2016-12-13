@@ -3,7 +3,7 @@
 ;; Copyright (C) 2016 Yevgnen Koh
 
 ;; Author: Yevgnen Koh <wherejoystarts@gmail.com>
-;; Package-Requires: ((emacs "24.4") (ivy "0.8.0") (projectile "0.15.0"))
+;; Package-Requires: ((emacs "24.4") (ivy "0.8.0"))
 ;; Version: 0.0.1
 ;; Keywords: ivy
 
@@ -33,6 +33,10 @@
 
 (require 'ivy)
 (require 'subr-x)
+
+(declare-function projectile-project-name "projectile")
+(declare-function projectile-project-p "projectile")
+(declare-function projectile-project-root "projectile")
 
 ;;; ivy-switch-buffer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defgroup ivy-rich nil
@@ -130,8 +134,7 @@ Currently the transformed format is
                  (mode (propertize mode 'face 'warning))
                  ;; Project
                  (project
-                  (if (not (and (featurep 'projectile)
-                                projectile-mode))
+                  (if (not (bound-and-true-p projectile-mode))
                       ""
                     (let ((project (projectile-project-name)))
                       (propertize (ivy-rich-switch-buffer-pad
