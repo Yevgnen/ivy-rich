@@ -44,7 +44,7 @@
   :group 'ivy)
 
 (defcustom ivy-rich-switch-buffer-name-max-length
-  40
+  32
   "Max length of buffer name.
 
 For better user experience, the max length should be set to loose to
@@ -71,10 +71,16 @@ to hold the project name."
   "Delimiter between columns."
   :type 'string)
 
-(defun ivy-rich-switch-buffer-pad (str len)
-  "Use space to pad STR to LEN of length."
+(defvar ivy-rich-switch-buffer-buffer-size-length 7)
+
+(defun ivy-rich-switch-buffer-pad (str len &optional left)
+  "Use space to pad STR to LEN of length.
+
+When LEFT is not nil, pad from left side."
   (if (< (length str) len)
-      (concat str (make-string (- len (length str)) ? ))
+      (if left
+          (concat (make-string (- len (length str)) ? ) str)
+        (concat str (make-string (- len (length str)) ? )))
     str))
 
 (defun ivy-rich-switch-buffer-mode (mode)
@@ -126,6 +132,13 @@ Currently the transformed format is
                                         "")
                                       'face 'error))
                  (indicator (ivy-rich-switch-buffer-pad (format "%s%s%s" readonly modified process) 3))
+                 ;; Size
+                 (size (buffer-size))
+                 (size (cond
+                        ((> size 1000000) (format "%.1fM " (/ size 1000000.0)))
+                        ((> size 1000) (format "%.1fk " (/ size 1000.0)))
+                        (t (format "%d " size))))
+                 (size (ivy-rich-switch-buffer-pad size ivy-rich-switch-buffer-buffer-size-length t))
                  ;; Buffer name
                  (name (ivy-rich-switch-buffer-pad str ivy-rich-switch-buffer-name-max-length))
                  (name (propertize name 'face 'ivy-modified-buffer))
@@ -151,6 +164,7 @@ Currently the transformed format is
                  (path-max-length (- (window-width (minibuffer-window))
                                      ivy-rich-switch-buffer-name-max-length
                                      (length indicator)
+                                     ivy-rich-switch-buffer-buffer-size-length
                                      ivy-rich-switch-buffer-mode-max-length
                                      ivy-rich-switch-buffer-project-max-length))
                  (path (file-truename (or (buffer-file-name) default-directory)))
@@ -161,8 +175,10 @@ Currently the transformed format is
                            (ivy-rich-switch-buffer-shorten-path path)
                          path))
                  (path (ivy-rich-switch-buffer-pad path path-max-length))
-                 (display (format "%s%s%s%s%s%s%s%s"
-                                  name indicator ivy-rich-switch-buffer-delimiter
+                 (display (format "%s%s%s%s%s%s%s%s%s%s"
+                                  name
+                                  size ivy-rich-switch-buffer-delimiter
+                                  indicator ivy-rich-switch-buffer-delimiter
                                   mode ivy-rich-switch-buffer-delimiter
                                   project ivy-rich-switch-buffer-delimiter
                                   path)))
