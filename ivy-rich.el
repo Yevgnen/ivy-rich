@@ -106,6 +106,7 @@ When LEFT is not nil, pad from left side."
 For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
   (replace-regexp-in-string "\\/?.+?\\/\\(.+\\)\\/.+?\\/.*" "…" file nil nil 1))
 
+;;;###autoload
 (defun ivy-rich-switch-buffer-transformer (str)
   "Transform STR to more readable format.
 
