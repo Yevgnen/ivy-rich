@@ -29,6 +29,7 @@ Currently only ~ivy-switch-buffer~ is supported.
 ** Usage
 #+BEGIN_SRC emacs-lisp
   (require 'ivy-rich)
+  (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
 #+END_SRC
 * Screenshots
 ** ~ivy-switch-buffer~
