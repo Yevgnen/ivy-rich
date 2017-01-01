@@ -4,6 +4,7 @@
 
 ;; Author: Yevgnen Koh <wherejoystarts@gmail.com>
 ;; Package-Requires: ((emacs "24.4") (ivy "0.8.0"))
+;; Package-Version: 20161228.2022
 ;; Version: 0.0.1
 ;; Keywords: ivy
 
@@ -198,7 +199,8 @@ Currently the transformed format is
                                                           3  ; width of indicators
                                                           ivy-rich-switch-buffer-buffer-size-length
                                                           ivy-rich-switch-buffer-mode-max-length
-                                                          ivy-rich-switch-buffer-project-max-length)))
+							  (* 3 (length ivy-rich-switch-buffer-delimiter))
+                                                          (if (not (bound-and-true-p projectile-mode)) 0 ivy-rich-switch-buffer-project-max-length))))
                  (filename (propertize filename 'face 'ivy-virtual))
                  ;; Path
                  (path (file-name-directory str))
@@ -209,7 +211,7 @@ Currently the transformed format is
             (format "%s%s%s"
                     filename
                     ivy-rich-switch-buffer-delimiter
-                    (ivy-rich-switch-buffer-pad path (- (window-width) (length filename)))))
+                    path))
         str))))
 
 (provide 'ivy-rich)
