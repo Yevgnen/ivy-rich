@@ -77,6 +77,10 @@ to hold the project name."
   :type 'boolean)
 
 (defvar ivy-rich-switch-buffer-buffer-size-length 7)
+(defvar ivy-rich-switch-buffer-indicator-length 3)
+
+(defun ivy-rich-string-empty-p (str)
+  (string-empty-p (string-trim str)))
 
 (defun ivy-rich-switch-buffer-pad (str len &optional left)
   "Use space to pad STR to LEN of length.
@@ -87,11 +91,6 @@ When LEFT is not nil, pad from left side."
           (concat (make-string (- len (length str)) ? ) str)
         (concat str (make-string (- len (length str)) ? )))
     str))
-
-(defun ivy-rich-switch-buffer-mode (mode)
-  "Transform MODE name to a more friendly format."
-  (capitalize
-   (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode" "" (symbol-name major-mode)))))
 
 (defun ivy-rich-switch-buffer-user-buffer-p (buffer)
   "Check whether BUFFER-NAME is a user buffer."
@@ -105,11 +104,116 @@ When LEFT is not nil, pad from left side."
   "Check whether major mode of current buffer is excluded in MODES."
   (not (memq major-mode modes)))
 
-(defun ivy-rich-switch-buffer-shorten-path (file)
+(defun ivy-rich-switch-buffer-shorten-path (file len)
   "Shorten the path of FILE.
 
 For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
-  (replace-regexp-in-string "\\/?.+?\\/\\(.+\\)\\/.+?\\/.*" "…" file nil nil 1))
+  (if (> (length file) len)
+      (replace-regexp-in-string "\\/?.+?\\/\\(.+\\)\\/.+?\\/.*" "…" file nil nil 1)
+    file))
+
+(defun ivy-rich-switch-buffer-format (columns)
+  "Join all the non-nil column of COLUMNS."
+  (mapconcat
+   #'identity
+   (remove-if #'null columns)
+   ivy-rich-switch-buffer-delimiter))
+
+(defun ivy-rich-switch-buffer-indicators ()
+  (let ((modified (if (and (buffer-modified-p)
+                           (ivy-rich-switch-buffer-excluded-modes-p '(dired-mode shell-mode))
+                           (ivy-rich-switch-buffer-user-buffer-p str))
+                      "*"
+                    ""))
+        (readonly (if (and buffer-read-only
+                           (ivy-rich-switch-buffer-user-buffer-p str))
+                      "!"
+                    ""))
+        (process (if (get-buffer-process (current-buffer))
+                     "&"
+                   "")))
+    (propertize
+     (ivy-rich-switch-buffer-pad (format "%s%s%s" readonly modified process) ivy-rich-switch-buffer-indicator-length)
+     'face
+     'error)))
+
+(defun ivy-rich-switch-buffer-size ()
+  (let ((size (buffer-size)))
+    (ivy-rich-switch-buffer-pad
+     (cond
+      ((> size 1000000) (format "%.1fM " (/ size 1000000.0)))
+      ((> size 1000) (format "%.1fk " (/ size 1000.0)))
+      (t (format "%d " size)))
+     ivy-rich-switch-buffer-buffer-size-length t)))
+
+(defun ivy-rich-switch-buffer-buffer-name ()
+  (propertize
+   (ivy-rich-switch-buffer-pad str ivy-rich-switch-buffer-name-max-length)
+   'face
+   'ivy-modified-buffer))
+
+(defun ivy-rich-switch-buffer-major-mode ()
+  (propertize
+   (ivy-rich-switch-buffer-pad
+    (capitalize
+     (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode" "" (symbol-name major-mode))))
+    ivy-rich-switch-buffer-mode-max-length)
+   'face
+   'warning))
+
+(defun ivy-rich-switch-buffer-project ()
+  (if (not (bound-and-true-p projectile-mode))
+      nil
+    (propertize
+     (ivy-rich-switch-buffer-pad
+      (if (string= (projectile-project-name) "-")
+          ""
+        (projectile-project-name))
+      ivy-rich-switch-buffer-project-max-length)
+     'face
+     'success)))
+
+(defun ivy-rich-switch-buffer-path (project)
+  (let* ((project-home (if (or (not project)
+                               (not (projectile-project-p)))
+                           ""
+                         (file-truename (projectile-project-root))))
+         (path-max-length (- (window-width (minibuffer-window))
+                             ivy-rich-switch-buffer-name-max-length
+                             ivy-rich-switch-buffer-indicator-length
+                             ivy-rich-switch-buffer-buffer-size-length
+                             ivy-rich-switch-buffer-mode-max-length
+                             (if project ivy-rich-switch-buffer-project-max-length 0)
+                             (* 4 (length ivy-rich-switch-buffer-delimiter))
+                             1))        ; Fixed the unexpected wrapping in terminal
+         (path (file-truename (or (buffer-file-name) default-directory)))
+         ;; If we're in project, we find the relative path
+         (path (if (or (not project)
+                       (ivy-rich-string-empty-p project))
+                   path
+                 (substring-no-properties path (length project-home)))))
+    (ivy-rich-switch-buffer-pad
+     (ivy-rich-switch-buffer-shorten-path path path-max-length)
+     path-max-length)))
+
+(defun ivy-rich-switch-buffer-virtual-buffer ()
+  (let* ((filename (file-name-nondirectory (expand-file-name str)))
+         (filename (ivy-rich-switch-buffer-pad
+                    filename
+                    (+ ivy-rich-switch-buffer-name-max-length
+                       ivy-rich-switch-buffer-indicator-length
+                       ivy-rich-switch-buffer-buffer-size-length
+                       ivy-rich-switch-buffer-mode-max-length
+                       (if (bound-and-true-p projectile-mode) ivy-rich-switch-buffer-project-max-length 0)
+                       (* 4 (length ivy-rich-switch-buffer-delimiter)))))
+         (filename (propertize filename 'face 'ivy-virtual))
+         (path (file-name-directory str))
+         (path (ivy-rich-switch-buffer-shorten-path path (- (window-width (minibuffer-window)) (length filename))))
+         (path (ivy-rich-switch-buffer-pad path (- (window-width)
+                                                   (length filename)
+                                                   1)))  ; Fixed the unexpected wrapping in terminal
+         (path (propertize path 'face 'ivy-virtual)))
+    (ivy-rich-switch-buffer-format `(,filename ,path))))
 
 ;;;###autoload
 (defun ivy-rich-switch-buffer-transformer (str)
@@ -119,103 +223,18 @@ Currently the transformed format is
 
 | Buffer name | Buffer indicators | Major mode | Project | Path (Based on project root) |."
   (let ((buf (get-buffer str)))
-    (if buf
-        (with-current-buffer buf
-          (let* (;; Indicators
-                 (modified (propertize (if (and (buffer-modified-p)
-                                                (ivy-rich-switch-buffer-excluded-modes-p '(dired-mode shell-mode))
-                                                (ivy-rich-switch-buffer-user-buffer-p str))
-                                           "*"
-                                         "")
-                                       'face 'error))
-                 (readonly (propertize (if (and buffer-read-only
-                                                (ivy-rich-switch-buffer-user-buffer-p str))
-                                           "!"
-                                         "")
-                                       'face 'error))
-                 (process (propertize (if (get-buffer-process (current-buffer))
-                                          "&"
-                                        "")
-                                      'face 'error))
-                 (indicator (ivy-rich-switch-buffer-pad (format "%s%s%s" readonly modified process) 3))
-                 ;; Size
-                 (size (buffer-size))
-                 (size (cond
-                        ((> size 1000000) (format "%.1fM " (/ size 1000000.0)))
-                        ((> size 1000) (format "%.1fk " (/ size 1000.0)))
-                        (t (format "%d " size))))
-                 (size (ivy-rich-switch-buffer-pad size ivy-rich-switch-buffer-buffer-size-length t))
-                 ;; Buffer name
-                 (name (ivy-rich-switch-buffer-pad str ivy-rich-switch-buffer-name-max-length))
-                 (name (propertize name 'face 'ivy-modified-buffer))
-                 ;; Major mode
-                 (mode (ivy-rich-switch-buffer-pad (ivy-rich-switch-buffer-mode major-mode) ivy-rich-switch-buffer-mode-max-length))
-                 (mode (propertize mode 'face 'warning))
-                 ;; Project
-                 (project
-                  (if (not (bound-and-true-p projectile-mode))
-                      ""
-                    (let ((project (projectile-project-name)))
-                      (propertize (ivy-rich-switch-buffer-pad
-                                   (if (string= project "-")
-                                       ""
-                                     project)
-                                   ivy-rich-switch-buffer-project-max-length)
-                                  'face 'success))))
-                 (project-home (if (or (string-empty-p project)
-                                       (not (projectile-project-p)))
-                                   ""
-                                 (file-truename (projectile-project-root))))
-                 ;; Path
-                 (path-max-length (- (window-width (minibuffer-window))
-                                     ivy-rich-switch-buffer-name-max-length
-                                     (length indicator)
-                                     ivy-rich-switch-buffer-buffer-size-length
-                                     ivy-rich-switch-buffer-mode-max-length
-                                     ivy-rich-switch-buffer-project-max-length
-                                     ;; Fixed the unexpected wrapping in terminal
-                                     1))
-                 (path (file-truename (or (buffer-file-name) default-directory)))
-                 (path (if (string-empty-p project)
-                           path
-                         (substring-no-properties path (length project-home))))
-                 (path (if (> (length path) path-max-length)
-                           (ivy-rich-switch-buffer-shorten-path path)
-                         path))
-                 (path (ivy-rich-switch-buffer-pad path path-max-length))
-                 (display (format "%s%s%s%s%s%s%s%s%s%s"
-                                  name
-                                  size ivy-rich-switch-buffer-delimiter
-                                  indicator ivy-rich-switch-buffer-delimiter
-                                  mode ivy-rich-switch-buffer-delimiter
-                                  project ivy-rich-switch-buffer-delimiter
-                                  path)))
-            display))
-      (if (and (eq ivy-virtual-abbreviate 'full)
-               ivy-rich-switch-buffer-align-virtual-buffer)
-          (let* (;; File name
-                 (filename (file-name-nondirectory (expand-file-name str)))
-                 (filename (ivy-rich-switch-buffer-pad filename
-                                                       (+ ivy-rich-switch-buffer-name-max-length
-                                                          3  ; width of indicators
-                                                          ivy-rich-switch-buffer-buffer-size-length
-                                                          ivy-rich-switch-buffer-mode-max-length
-                                                          ivy-rich-switch-buffer-project-max-length)))
-                 (filename (propertize filename 'face 'ivy-virtual))
-                 ;; Path
-                 (path (file-name-directory str))
-                 (path (if (> (length path) (- (window-width (minibuffer-window)) (length filename)))
-                           (ivy-rich-switch-buffer-shorten-path path)
-                         path))
-                 (path (propertize path 'face 'ivy-virtual)))
-            (format "%s%s%s"
-                    filename
-                    ivy-rich-switch-buffer-delimiter
-                    (ivy-rich-switch-buffer-pad path (- (window-width)
-                                                        (length filename)
-                                                        ;; Fixed the unexpected wrapping in terminal
-                                                        1))))
-        str))))
+    (cond (buf (with-current-buffer buf
+                 (let* ((indicator  (ivy-rich-switch-buffer-indicators))
+                        (size       (ivy-rich-switch-buffer-size))
+                        (buf-name   (ivy-rich-switch-buffer-buffer-name))
+                        (mode       (ivy-rich-switch-buffer-major-mode))
+                        (project    (ivy-rich-switch-buffer-project))
+                        (path       (ivy-rich-switch-buffer-path project)))
+                   (ivy-rich-switch-buffer-format `(,buf-name ,size ,indicator ,mode ,project ,path)))))
+          ((and (eq ivy-virtual-abbreviate 'full)
+                ivy-rich-switch-buffer-align-virtual-buffer)
+           (ivy-rich-switch-buffer-virtual-buffer))
+          (t str))))
 
 (provide 'ivy-rich)
 
