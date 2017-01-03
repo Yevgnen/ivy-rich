@@ -172,7 +172,9 @@ Currently the transformed format is
                                      (length indicator)
                                      ivy-rich-switch-buffer-buffer-size-length
                                      ivy-rich-switch-buffer-mode-max-length
-                                     ivy-rich-switch-buffer-project-max-length))
+                                     ivy-rich-switch-buffer-project-max-length
+                                     ;; Fixed the unexpected wrapping in terminal
+                                     1))
                  (path (file-truename (or (buffer-file-name) default-directory)))
                  (path (if (string-empty-p project)
                            path
@@ -209,7 +211,10 @@ Currently the transformed format is
             (format "%s%s%s"
                     filename
                     ivy-rich-switch-buffer-delimiter
-                    (ivy-rich-switch-buffer-pad path (- (window-width) (length filename)))))
+                    (ivy-rich-switch-buffer-pad path (- (window-width)
+                                                        (length filename)
+                                                        ;; Fixed the unexpected wrapping in terminal
+                                                        1))))
         str))))
 
 (provide 'ivy-rich)
