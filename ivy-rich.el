@@ -76,6 +76,11 @@ to hold the project name."
   "Whether to align virtual buffers just as true buffers or not."
   :type 'boolean)
 
+(defcustom ivy-rich-abbreviate-paths
+  nil
+  "Abbreviate paths using `abbreviate-file-name'."
+  :type 'boolean)
+
 (defvar ivy-rich-switch-buffer-buffer-size-length 7)
 (defvar ivy-rich-switch-buffer-indicator-length 3)
 
@@ -173,6 +178,12 @@ For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
      'face
      'success)))
 
+(defun ivy-rich-abbreviate-path (path)
+  "Return a shortened version of PATH if `ivy-rich-abbreviate-paths' is set."
+  (if ivy-rich-abbreviate-paths
+      (abbreviate-file-name path)
+    path))
+
 (defun ivy-rich-switch-buffer-path (project)
   (let* ((project-home (if (or (not project)
                                (not (projectile-project-p)))
@@ -187,6 +198,7 @@ For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
                              (* 4 (length ivy-rich-switch-buffer-delimiter))
                              2))        ; Fixed the unexpected wrapping in terminal
          (path (file-truename (or (buffer-file-name) default-directory)))
+         (path (ivy-rich-abbreviate-path path))
          ;; If we're in project, we find the relative path
          (path (if (or (not project)
                        (ivy-rich-string-empty-p project))

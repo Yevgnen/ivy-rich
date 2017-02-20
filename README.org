@@ -36,6 +36,11 @@ If you want to align the virtual buffers, try
   (setq ivy-virtual-abbreviate 'full
         ivy-rich-switch-buffer-align-virtual-buffer t)
 #+END_SRC
+To abbreviate paths using ~abbreviate-file-name~  (e.g. replace "/home/username" with "~")
+#+BEGIN_SRC emacs-lisp
+  (setq ivy-rich-abbreviate-paths t)
+#+END_SRC
+
 * Screenshots
 ** ~ivy-switch-buffer~
 [[file:screenshots/buffer.png]]
