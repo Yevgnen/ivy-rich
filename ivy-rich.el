@@ -203,7 +203,7 @@ For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
          (path (if (or (not project)
                        (ivy-rich-string-empty-p project))
                    path
-                 (substring-no-properties path (length project-home)))))
+                 (substring-no-properties path (length (ivy-rich-abbreviate-path project-home))))))
     (ivy-rich-switch-buffer-pad
      (ivy-rich-switch-buffer-shorten-path path path-max-length)
      path-max-length)))
