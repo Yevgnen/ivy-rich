@@ -31,6 +31,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'ivy)
 (require 'subr-x)
 
@@ -116,7 +117,7 @@ For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
   "Join all the non-nil column of COLUMNS."
   (mapconcat
    #'identity
-   (remove-if #'null columns)
+   (cl-remove-if #'null columns)
    ivy-rich-switch-buffer-delimiter))
 
 (defun ivy-rich-switch-buffer-indicators ()
