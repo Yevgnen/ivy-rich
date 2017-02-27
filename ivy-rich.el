@@ -124,7 +124,7 @@ For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
    (remove-if #'null columns)
    ivy-rich-switch-buffer-delimiter))
 
-(defun ivy-rich-switch-buffer-indicators (str)
+(defun ivy-rich-switch-buffer-indicators ()
   (let ((modified (if (and (buffer-modified-p)
                            (ivy-rich-switch-buffer-excluded-modes-p '(dired-mode shell-mode))
                            (ivy-rich-switch-buffer-user-buffer-p str))
@@ -151,7 +151,7 @@ For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
       (t (format "%d " size)))
      ivy-rich-switch-buffer-buffer-size-length t)))
 
-(defun ivy-rich-switch-buffer-buffer-name (str)
+(defun ivy-rich-switch-buffer-buffer-name ()
   (propertize
    (ivy-rich-switch-buffer-pad str ivy-rich-switch-buffer-name-max-length)
    'face
@@ -208,7 +208,7 @@ For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
      (ivy-rich-switch-buffer-shorten-path path path-max-length)
      path-max-length)))
 
-(defun ivy-rich-switch-buffer-virtual-buffer (str)
+(defun ivy-rich-switch-buffer-virtual-buffer ()
   (let* ((filename (file-name-nondirectory (expand-file-name str)))
          (filename (ivy-rich-switch-buffer-pad
                     filename
@@ -236,16 +236,16 @@ Currently the transformed format is
 | Buffer name | Buffer indicators | Major mode | Project | Path (Based on project root) |."
   (let ((buf (get-buffer str)))
     (cond (buf (with-current-buffer buf
-                 (let* ((indicator  (ivy-rich-switch-buffer-indicators str))
+                 (let* ((indicator  (ivy-rich-switch-buffer-indicators))
                         (size       (ivy-rich-switch-buffer-size))
-                        (buf-name   (ivy-rich-switch-buffer-buffer-name str))
+                        (buf-name   (ivy-rich-switch-buffer-buffer-name))
                         (mode       (ivy-rich-switch-buffer-major-mode))
                         (project    (ivy-rich-switch-buffer-project))
                         (path       (ivy-rich-switch-buffer-path project)))
                    (ivy-rich-switch-buffer-format `(,buf-name ,size ,indicator ,mode ,project ,path)))))
           ((and (eq ivy-virtual-abbreviate 'full)
                 ivy-rich-switch-buffer-align-virtual-buffer)
-           (ivy-rich-switch-buffer-virtual-buffer str))
+           (ivy-rich-switch-buffer-virtual-buffer))
           (t str))))
 
 (provide 'ivy-rich)
