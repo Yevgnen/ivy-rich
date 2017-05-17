@@ -187,6 +187,10 @@ For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
 
 (defun ivy-rich-switch-buffer-path (project)
   (let* ((project-home (if (or (not project)
+                               (file-remote-p (or (buffer-file-name)
+                                                  (and (eq major-mode 'dired-mode)
+                                                       (dired-current-directory))
+                                                  ""))
                                (not (projectile-project-p)))
                            ""
                          (file-truename (projectile-project-root))))
