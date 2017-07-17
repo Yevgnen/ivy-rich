@@ -4,7 +4,7 @@
 
 ;; Author: Yevgnen Koh <wherejoystarts@gmail.com>
 ;; Package-Requires: ((emacs "24.4") (ivy "0.8.0"))
-;; Version: 0.0.2
+;; Version: 0.0.3
 ;; Keywords: ivy
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -202,7 +202,11 @@ For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
                              (if project ivy-rich-switch-buffer-project-max-length 0)
                              (* 4 (length ivy-rich-switch-buffer-delimiter))
                              2))        ; Fixed the unexpected wrapping in terminal
-         (path (file-truename (or (buffer-file-name) default-directory)))
+         (path (if (and (buffer-file-name)
+                        (string-match "^https?:\\/\\/" (buffer-file-name))
+                        (not (file-exists-p (buffer-file-name))))
+                   ""
+                 (file-truename (or (buffer-file-name) default-directory))))
          (path (ivy-rich-abbreviate-path path))
          ;; If we're in project, we find the relative path
          (path (if (or (not project)
