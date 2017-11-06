@@ -72,6 +72,21 @@ to hold the project name."
   "Delimiter between columns."
   :type 'string)
 
+(defcustom ivy-rich-switch-buffer-file-buffer-format
+  "%1$s%2$s%3$s%4$s%5$s%6$s"
+  "Format string used to display a file buffer.
+
+The format string is passed the following values as arguments:
+1. the buffer's name (see also `ivy-rich-switch-buffer-name-max-length')
+2. the buffer's size
+3. the buffer's modified/read-only indicators
+4. the buffer mode (see also `ivy-rich-switch-buffer-mode-max-length')
+5. the buffer's project (see also `ivy-rich-switch-buffer-project-max-length')
+6. the file path within the project.
+
+See `format' documentation."
+  :type 'string)
+
 (defcustom ivy-rich-switch-buffer-align-virtual-buffer
   nil
   "Whether to align virtual buffers just as true buffers or not."
@@ -148,10 +163,8 @@ or /a/…/f.el."
 
 (defun ivy-rich-switch-buffer-format (columns)
   "Join all the non-nil column of COLUMNS."
-  (mapconcat
-   #'identity
-   (cl-remove-if #'null columns)
-   ivy-rich-switch-buffer-delimiter))
+  (apply #'format ivy-rich-switch-buffer-file-buffer-format
+         (mapcar (lambda (column) (or column "")) columns)))
 
 (defun ivy-rich-switch-buffer-indicators ()
   (let ((modified (if (and (buffer-modified-p)
