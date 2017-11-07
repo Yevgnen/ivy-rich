@@ -82,11 +82,24 @@ to hold the project name."
   "Abbreviate paths using `abbreviate-file-name'."
   :type 'boolean)
 
+(defcustom ivy-rich-switch-buffer-replacer-regexp-list
+  nil
+  "List of pairs of strings used to format buffer name."
+  :type '(repeat string))
+
 (defvar ivy-rich-switch-buffer-buffer-size-length 7)
 (defvar ivy-rich-switch-buffer-indicator-length 3)
 
 (defun ivy-rich-string-empty-p (str)
   (string-empty-p (string-trim str)))
+
+(defun ivy-rich-shorten (str len &optional left)
+  (let ((real-len (length str)))
+    (if (> real-len len)
+        (if left
+            (format "…%s" (substring str (- real-len len -1)))
+          (format "%s…" (substring str 0 (1- len))))
+      str)))
 
 (defun ivy-rich-switch-buffer-pad (str len &optional left)
   "Use space to pad STR to LEN of length.
@@ -160,16 +173,27 @@ or /a/…/f.el."
      ivy-rich-switch-buffer-buffer-size-length t)))
 
 (defun ivy-rich-switch-buffer-buffer-name ()
-  (propertize
-   (ivy-rich-switch-buffer-pad str ivy-rich-switch-buffer-name-max-length)
-   'face
-   'ivy-modified-buffer))
+  (let* ((buf-name (buffer-name)))
+    (if-let ((replacer (assoc-default buf-name ivy-rich-switch-buffer-replacer-regexp-list #'string-match)))
+        (setq buf-name (replace-regexp-in-string
+                        (car (rassoc replacer ivy-rich-switch-buffer-replacer-regexp-list))
+                        replacer
+                        buf-name
+                        t nil 0)))
+    (propertize
+     (ivy-rich-switch-buffer-pad
+      (ivy-rich-shorten buf-name (- ivy-rich-switch-buffer-name-max-length 1) 'left)
+      ivy-rich-switch-buffer-name-max-length)
+     'face
+     'ivy-modified-buffer)))
 
 (defun ivy-rich-switch-buffer-major-mode ()
   (propertize
    (ivy-rich-switch-buffer-pad
-    (capitalize
-     (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode" "" (symbol-name major-mode))))
+    (ivy-rich-shorten
+     (capitalize
+      (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode" "" (symbol-name major-mode))))
+     (- ivy-rich-switch-buffer-mode-max-length 1))
     ivy-rich-switch-buffer-mode-max-length)
    'face
    'warning))
