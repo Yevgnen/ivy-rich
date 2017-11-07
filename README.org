@@ -38,8 +38,11 @@ If you want to align the virtual buffers, try
 #+END_SRC
 To abbreviate paths using ~abbreviate-file-name~  (e.g. replace "/home/username" with "~")
 #+BEGIN_SRC emacs-lisp
-  (setq ivy-rich-abbreviate-paths t)
+  (setq ivy-rich-path-style 'abbrev)
 #+END_SRC
+Note that this may not affect remote files. To always show absolute path, set it
+to ='full= or ='absolute=. Any other value will show the file path relative to
+the project root or =default-directory=.
 
 * Screenshots
 ** ~ivy-switch-buffer~
