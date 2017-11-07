@@ -111,11 +111,18 @@ When LEFT is not nil, pad from left side."
   (not (memq major-mode modes)))
 
 (defun ivy-rich-switch-buffer-shorten-path (file len)
-  "Shorten the path of FILE.
+  "Shorten the path of FILE until the length of FILE <= LEN.
 
-For example, a path /a/b/c/d/e/f.el will be shortened to /a/…/e/f.el."
+For example, a path /a/b/c/d/e/f.el will be shortened to
+   /a/…/c/d/e/f.el
+or /a/…/d/e/f.el
+or /a/…/e/f.el
+or /a/…/f.el."
   (if (> (length file) len)
-      (replace-regexp-in-string "\\/?.+?\\/\\(.+\\)\\/.+?\\/.*" "…" file nil nil 1)
+      (let ((new-file (replace-regexp-in-string "\\/?.+?\\/\\(\\(…\\/\\)?.+?\\)\\/.*" "…" file nil nil 1)))
+        (if (string= new-file file)
+            file
+          (ivy-rich-switch-buffer-shorten-path new-file len)))
     file))
 
 (defun ivy-rich-switch-buffer-format (columns)
