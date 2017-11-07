@@ -89,6 +89,19 @@ When set to 'relative or any other value, path relative to project
 home will be used."
   :type 'symbol)
 
+(defcustom ivy-rich-parse-remote-file-path
+  nil
+  "Whether `ivy-rich-path-style' should take care of remote file.
+
+When `nil', always show absolute path of remote files,
+otherwise, treat remote files as local files.
+
+Sometimes when you are editing files with same names and same
+directory structures in local and remote machines, setting this
+option to `nil' would make the candidates easier to be
+distinguished."
+  :type 'boolean)
+
 (defvar ivy-rich-switch-buffer-buffer-size-length 7)
 (defvar ivy-rich-switch-buffer-indicator-length 4)
 
@@ -209,10 +222,6 @@ or /a/…/f.el."
          ;; Find the project root directory or `default-directory'
          (root (file-truename
                 (if (or (not project)
-                        (file-remote-p (or (buffer-file-name)
-                                           (and (eq major-mode 'dired-mode)
-                                                (dired-current-directory))
-                                           ""))
                         (not (projectile-project-p)))
                     default-directory
                   (projectile-project-root))))
@@ -227,7 +236,9 @@ or /a/…/f.el."
             (if (eq major-mode 'dired-mode)
                 (dired-current-directory)
               nil)))
-         (path (cond ((memq ivy-rich-path-style '(full absolute))
+         (path (cond ((or (memq ivy-rich-path-style '(full absolute))
+                          (and (null ivy-rich-parse-remote-file-path)
+                               (or (file-remote-p root))))
                       (expand-file-name (or filename root)))
                      ((memq ivy-rich-path-style '(abbreviate abbrev))
                       (abbreviate-file-name (or filename root)))
