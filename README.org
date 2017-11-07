@@ -44,6 +44,8 @@ Note that this may not affect remote files. To always show absolute path, set it
 to ='full= or ='absolute=. Any other value will show the file path relative to
 the project root or =default-directory=.
 
+Use =M-x customize-group ivy-rich= to see more options.
+
 * Screenshots
 ** ~ivy-switch-buffer~
 [[file:screenshots/buffer.png]]
