@@ -90,7 +90,7 @@ home will be used."
   :type 'symbol)
 
 (defvar ivy-rich-switch-buffer-buffer-size-length 7)
-(defvar ivy-rich-switch-buffer-indicator-length 3)
+(defvar ivy-rich-switch-buffer-indicator-length 4)
 
 (defun ivy-rich-empty-p (str)
   (or (null str)
@@ -152,9 +152,12 @@ or /a/…/f.el."
                     ""))
         (process (if (get-buffer-process (current-buffer))
                      "&"
-                   "")))
+                   ""))
+        (remote (if (file-remote-p (or (buffer-file-name) default-directory))
+                    "@"
+                  "")))
     (propertize
-     (ivy-rich-switch-buffer-pad (format "%s%s%s" readonly modified process) ivy-rich-switch-buffer-indicator-length)
+     (ivy-rich-switch-buffer-pad (format "%s%s%s%s" remote readonly modified process) ivy-rich-switch-buffer-indicator-length)
      'face
      'error)))
 
