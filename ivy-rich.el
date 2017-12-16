@@ -218,6 +218,7 @@ or /a/…/f.el."
                              ivy-rich-switch-buffer-mode-max-length
                              (if project ivy-rich-switch-buffer-project-max-length 0)
                              (* 4 (length ivy-rich-switch-buffer-delimiter))
+                             (if (eq 'ivy-format-function-arrow ivy-format-function) 2 0)
                              2))        ; Fixed the unexpected wrapping in terminal
          ;; Find the project root directory or `default-directory'
          (root (file-truename
