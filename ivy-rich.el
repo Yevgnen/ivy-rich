@@ -235,7 +235,7 @@ or /a/…/f.el."
                   nil
                 (file-truename (buffer-file-name)))
             (if (eq major-mode 'dired-mode)
-                (dired-current-directory)
+                (file-truename (dired-current-directory))
               nil)))
          (path (cond ((or (memq ivy-rich-path-style '(full absolute))
                           (and (null ivy-rich-parse-remote-file-path)
