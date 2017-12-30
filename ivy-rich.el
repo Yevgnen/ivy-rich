@@ -229,8 +229,7 @@ or /a/…/f.el."
          ;; Find the file name or `nil'
          (filename
           (if (buffer-file-name)
-              (if (and (buffer-file-name)
-                       (string-match "^https?:\\/\\/" (buffer-file-name))
+              (if (and (string-match "^https?:\\/\\/" (buffer-file-name))
                        (not (file-exists-p (buffer-file-name))))
                   nil
                 (file-truename (buffer-file-name)))
