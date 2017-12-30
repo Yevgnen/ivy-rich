@@ -229,13 +229,12 @@ or /a/…/f.el."
          ;; Find the file name or `nil'
          (filename
           (if (buffer-file-name)
-              (if (and (buffer-file-name)
-                       (string-match "^https?:\\/\\/" (buffer-file-name))
+              (if (and (string-match "^https?:\\/\\/" (buffer-file-name))
                        (not (file-exists-p (buffer-file-name))))
                   nil
                 (file-truename (buffer-file-name)))
             (if (eq major-mode 'dired-mode)
-                (dired-current-directory)
+                (file-truename (dired-current-directory))
               nil)))
          (path (cond ((or (memq ivy-rich-path-style '(full absolute))
                           (and (null ivy-rich-parse-remote-file-path)
