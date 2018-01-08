@@ -245,8 +245,8 @@ or /a/…/f.el."
                       (abbreviate-file-name (or filename root)))
                      ((or (eq ivy-rich-path-style 'relative)
                           t)            ; make 'relative default
-                      (if filename
-                          (substring-no-properties filename (length root))
+                      (if (and filename root)
+                          (substring-no-properties (string-remove-prefix root filename))
                         "")))))
     (ivy-rich-switch-buffer-pad
      (ivy-rich-switch-buffer-shorten-path path path-max-length)
