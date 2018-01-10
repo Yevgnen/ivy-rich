@@ -89,6 +89,18 @@ When set to 'relative or any other value, path relative to project
 home will be used."
   :type 'symbol)
 
+(defcustom ivy-rich-parse-remote-buffer
+  t
+  "Whether to parse remote files.
+
+When `nil', only basic info of remote buffers, like buffer size,
+major mode, etc. will be parsed, otherwise, all info inculding
+project details, file path will be parsed.
+
+If you have performance issue when accessing tramp files, set
+this to `nil'."
+  :type 'boolean)
+
 (defcustom ivy-rich-parse-remote-file-path
   nil
   "Whether `ivy-rich-path-style' should take care of remote file.
@@ -99,7 +111,10 @@ otherwise, treat remote files as local files.
 Sometimes when you are editing files with same names and same
 directory structures in local and remote machines, setting this
 option to `nil' would make the candidates easier to be
-distinguished."
+distinguished.
+
+Note that this variable takes effect only when
+`ivy-rich-parse-remote-buffer' is set to `t'."
   :type 'boolean)
 
 (defvar ivy-rich-switch-buffer-buffer-size-length 7)
@@ -199,7 +214,8 @@ or /a/…/f.el."
    'warning))
 
 (defun ivy-rich-switch-buffer-project ()
-  (if (not (bound-and-true-p projectile-mode))
+  (if (or (not (bound-and-true-p projectile-mode))
+          (not ivy-rich-parse-remote-buffer))
       nil
     (propertize
      (ivy-rich-switch-buffer-pad
@@ -219,38 +235,40 @@ or /a/…/f.el."
                              (if project ivy-rich-switch-buffer-project-max-length 0)
                              (* 4 (length ivy-rich-switch-buffer-delimiter))
                              (if (eq 'ivy-format-function-arrow ivy-format-function) 2 0)
-                             2))        ; Fixed the unexpected wrapping in terminal
-         ;; Find the project root directory or `default-directory'
-         (root (file-truename
-                (if (or (not project)
-                        (not (projectile-project-p)))
-                    default-directory
-                  (projectile-project-root))))
-         ;; Find the file name or `nil'
-         (filename
-          (if (buffer-file-name)
-              (if (and (buffer-file-name)
-                       (string-match "^https?:\\/\\/" (buffer-file-name))
-                       (not (file-exists-p (buffer-file-name))))
-                  nil
-                (file-truename (buffer-file-name)))
-            (if (eq major-mode 'dired-mode)
-                (file-truename (dired-current-directory))
-              nil)))
-         (path (cond ((or (memq ivy-rich-path-style '(full absolute))
-                          (and (null ivy-rich-parse-remote-file-path)
-                               (or (file-remote-p root))))
-                      (expand-file-name (or filename root)))
-                     ((memq ivy-rich-path-style '(abbreviate abbrev))
-                      (abbreviate-file-name (or filename root)))
-                     ((or (eq ivy-rich-path-style 'relative)
-                          t)            ; make 'relative default
-                      (if (and filename root)
-                          (substring-no-properties (string-remove-prefix root filename))
-                        "")))))
-    (ivy-rich-switch-buffer-pad
-     (ivy-rich-switch-buffer-shorten-path path path-max-length)
-     path-max-length)))
+                             2)))       ; Fixed the unexpected wrapping in terminal
+    (if (not ivy-rich-parse-remote-buffer)
+        (ivy-rich-switch-buffer-pad "" path-max-length)
+      (let* (;; Find the project root directory or `default-directory'
+             (root (file-truename
+                    (if (or (not project)
+                            (not (projectile-project-p)))
+                        default-directory
+                      (projectile-project-root))))
+             ;; Find the file name or `nil'
+             (filename
+              (if (buffer-file-name)
+                  (if (and (buffer-file-name)
+                           (string-match "^https?:\\/\\/" (buffer-file-name))
+                           (not (file-exists-p (buffer-file-name))))
+                      nil
+                    (file-truename (buffer-file-name)))
+                (if (eq major-mode 'dired-mode)
+                    (file-truename (dired-current-directory))
+                  nil)))
+             (path (cond ((or (memq ivy-rich-path-style '(full absolute))
+                              (and (null ivy-rich-parse-remote-file-path)
+                                   (or (file-remote-p root))))
+                          (expand-file-name (or filename root)))
+                         ((memq ivy-rich-path-style '(abbreviate abbrev))
+                          (abbreviate-file-name (or filename root)))
+                         ((or (eq ivy-rich-path-style 'relative)
+                              t)            ; make 'relative default
+                          (if (and filename root)
+                              (substring-no-properties (string-remove-prefix root filename))
+                            "")))))
+        (ivy-rich-switch-buffer-pad
+         (ivy-rich-switch-buffer-shorten-path path path-max-length)
+         path-max-length)))))
 
 (defun ivy-rich-switch-buffer-virtual-buffer (str)
   (let* ((filename (file-name-nondirectory (expand-file-name str)))
