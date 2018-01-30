@@ -215,7 +215,8 @@ or /a/…/f.el."
 
 (defun ivy-rich-switch-buffer-project ()
   (if (or (not (bound-and-true-p projectile-mode))
-          (not ivy-rich-parse-remote-buffer))
+          (and (file-remote-p (or (buffer-file-name) default-directory))
+               (not ivy-rich-parse-remote-buffer)))
       nil
     (propertize
      (ivy-rich-switch-buffer-pad
@@ -236,7 +237,8 @@ or /a/…/f.el."
                              (* 4 (length ivy-rich-switch-buffer-delimiter))
                              (if (eq 'ivy-format-function-arrow ivy-format-function) 2 0)
                              2)))       ; Fixed the unexpected wrapping in terminal
-    (if (not ivy-rich-parse-remote-buffer)
+    (if (and (file-remote-p (or (buffer-file-name) default-directory))
+             (not ivy-rich-parse-remote-buffer))
         (ivy-rich-switch-buffer-pad "" path-max-length)
       (let* (;; Find the project root directory or `default-directory'
              (root (file-truename
