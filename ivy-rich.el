@@ -204,6 +204,24 @@ or /a/…/f.el."
    'face
    'ivy-modified-buffer))
 
+;; Some code from https://github.com/asok/all-the-icons-ivy
+
+(defun ivy-rich--mode-icon (mode)
+  "Apply `all-the-icons-for-mode' on MODE but either return an icon or nil."
+  (let ((icon (all-the-icons-icon-for-mode mode)))
+    (unless (symbolp icon)
+      icon)))
+
+(defun ivy-rich-switch-buffer-buffer-icon ()
+  "Try to find the icon for the buffer's `major-mode'.
+If that fails look for an icon for the mode that the `major-mode' is derived from."
+  (when (require 'all-the-icons nil t)
+    (format "%s\t"
+            (propertize "\t" 'display
+                        (or (ivy-rich--mode-icon major-mode)
+                            (ivy-rich--mode-icon (get major-mode 'derived-mode-parent))
+                            (ivy-rich--mode-icon 'special-mode))))))
+
 (defun ivy-rich-switch-buffer-major-mode ()
   (propertize
    (ivy-rich-switch-buffer-pad
