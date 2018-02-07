@@ -206,19 +206,13 @@ or /a/…/f.el."
 
 ;; Some code from https://github.com/asok/all-the-icons-ivy
 
-(defun ivy-rich--mode-icon (mode)
-  "Apply `all-the-icons-for-mode' on MODE but either return an icon or nil."
-  (let ((icon (all-the-icons-icon-for-mode mode)))
-    (unless (symbolp icon)
-      icon)))
-
 (defun ivy-rich-switch-buffer-buffer-icon ()
   "Try to find the icon for the buffer's `major-mode'.
 If that fails look for an icon for the mode that the `major-mode' is derived from."
   (when (require 'all-the-icons nil t)
     (format "%s\t"
             (propertize "\t" 'display
-                        (all-the-icons-icon-for-mode major-mode)))))
+                        (all-the-icons-icon-for-buffer)))))
 
 (defun ivy-rich-switch-buffer-major-mode ()
   (propertize
