@@ -218,9 +218,7 @@ If that fails look for an icon for the mode that the `major-mode' is derived fro
   (when (require 'all-the-icons nil t)
     (format "%s\t"
             (propertize "\t" 'display
-                        (or (ivy-rich--mode-icon major-mode)
-                            (ivy-rich--mode-icon (get major-mode 'derived-mode-parent))
-                            (ivy-rich--mode-icon 'special-mode))))))
+                        (all-the-icons-icon-for-mode major-mode)))))
 
 (defun ivy-rich-switch-buffer-major-mode ()
   (propertize
@@ -321,10 +319,11 @@ Currently the transformed format is
                  (let* ((indicator  (ivy-rich-switch-buffer-indicators str))
                         (size       (ivy-rich-switch-buffer-size))
                         (buf-name   (ivy-rich-switch-buffer-buffer-name str))
+                        (icon       (ivy-rich-switch-buffer-buffer-icon))
                         (mode       (ivy-rich-switch-buffer-major-mode))
                         (project    (ivy-rich-switch-buffer-project))
                         (path       (ivy-rich-switch-buffer-path project)))
-                   (ivy-rich-switch-buffer-format `(,buf-name ,size ,indicator ,mode ,project ,path)))))
+                   (ivy-rich-switch-buffer-format `(,icon ,buf-name ,size ,indicator ,mode ,project ,path)))))
           ((and (eq ivy-virtual-abbreviate 'full)
                 ivy-rich-switch-buffer-align-virtual-buffer)
            (ivy-rich-switch-buffer-virtual-buffer str))
