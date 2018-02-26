@@ -237,8 +237,11 @@ or /a/…/f.el."
                              (* 4 (length ivy-rich-switch-buffer-delimiter))
                              (if (eq 'ivy-format-function-arrow ivy-format-function) 2 0)
                              2)))       ; Fixed the unexpected wrapping in terminal
-    (if (and (file-remote-p (or (buffer-file-name) default-directory))
-             (not ivy-rich-parse-remote-buffer))
+    (if (or (and (file-remote-p (or (buffer-file-name) default-directory))
+                 (not ivy-rich-parse-remote-buffer))
+            ;; Workaround for `browse-url-emacs' buffers , it changes
+            ;; `default-directory' to "http://" (#25)
+            (string-match "https?:\\/\\/" default-directory))
         (ivy-rich-switch-buffer-pad "" path-max-length)
       (let* (;; Find the project root directory or `default-directory'
              (root (file-truename
