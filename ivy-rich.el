@@ -128,11 +128,14 @@ Note that this variable takes effect only when
   "Use space to pad STR to LEN of length.
 
 When LEFT is not nil, pad from left side."
-  (if (< (length str) len)
-      (if left
-          (concat (make-string (- len (length str)) ? ) str)
-        (concat str (make-string (- len (length str)) ? )))
-    str))
+  (let ((str-len (length str)))
+    (cond ((< str-len len)
+           (if left
+               (concat (make-string (- len (length str)) ? ) str)
+             (concat str (make-string (- len (length str)) ? ))))
+          ((> str-len len)
+           (format "%s…" (substring str 0 (1- len))))
+          (t str))))
 
 (defun ivy-rich-switch-buffer-user-buffer-p (buffer)
   "Check whether BUFFER-NAME is a user buffer."
