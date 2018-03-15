@@ -291,7 +291,7 @@ or /a/…/f.el."
          (filename (propertize filename 'face 'ivy-virtual))
          (path (file-name-directory str))
          (path (ivy-rich-switch-buffer-shorten-path path (- (window-width (minibuffer-window)) (length filename))))
-         (path (ivy-rich-switch-buffer-pad path (- (window-width)
+         (path (ivy-rich-switch-buffer-pad path (- (window-width (minibuffer-window))
                                                    (length filename)
                                                    2)))  ; Fixed the unexpected wrapping in terminal
          (path (propertize path 'face 'ivy-virtual)))
