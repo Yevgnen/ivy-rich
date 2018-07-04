@@ -319,6 +319,30 @@ Currently the transformed format is
            (ivy-rich-switch-buffer-virtual-buffer str))
           (t str))))
 
+
+;; Utilities for setting and unsetting the transformers
+(defvar ivy-rich--original-display-transformers-list nil)  ; Backup list
+
+(defun ivy-rich-set-display-transformer (cmd transformer)
+  (setq ivy-rich--original-display-transformers-list
+        (plist-put
+         ivy-rich--original-display-transformers-list cmd (plist-get ivy--display-transformers-list cmd)))
+  (ivy-set-display-transformer cmd transformer))
+
+(defun ivy-rich-unset-display-transformer (cmd)
+  (ivy-set-display-transformer
+   cmd
+   (plist-get ivy-rich--original-display-transformers-list cmd)))
+
+;;;###autoload
+(define-minor-mode ivy-rich-mode
+  "Toggle ivy-rich mode globally."
+  :global t
+  (if ivy-rich-mode
+      (ivy-rich-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+    (ivy-rich-unset-display-transformer 'ivy-switch-buffer)
+    (setq ivy-rich--original-display-transformers-list nil)))
+
 (provide 'ivy-rich)
 
 ;;; ivy-rich.el ends here
