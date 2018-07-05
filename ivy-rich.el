@@ -124,7 +124,7 @@ Note that this variable takes effect only when
   (or (null str)
       (string-empty-p (string-trim str))))
 
-(defun ivy-rich-switch-buffer-pad (str len &optional left)
+(defun ivy-rich-pad (str len &optional left)
   "Use space to pad STR to LEN of length.
 
 When LEFT is not nil, pad from left side."
@@ -189,13 +189,13 @@ or /a/…/f.el."
                     "@"
                   "")))
     (propertize
-     (ivy-rich-switch-buffer-pad (format "%s%s%s%s" remote readonly modified process) ivy-rich-switch-buffer-indicator-length)
+     (ivy-rich-pad (format "%s%s%s%s" remote readonly modified process) ivy-rich-switch-buffer-indicator-length)
      'face
      'error)))
 
 (defun ivy-rich-switch-buffer-size ()
   (let ((size (buffer-size)))
-    (ivy-rich-switch-buffer-pad
+    (ivy-rich-pad
      (cond
       ((> size 1000000) (format "%.1fM " (/ size 1000000.0)))
       ((> size 1000) (format "%.1fk " (/ size 1000.0)))
@@ -204,13 +204,13 @@ or /a/…/f.el."
 
 (defun ivy-rich-switch-buffer-buffer-name (str)
   (propertize
-   (ivy-rich-switch-buffer-pad str ivy-rich-switch-buffer-name-max-length)
+   (ivy-rich-pad str ivy-rich-switch-buffer-name-max-length)
    'face
    'ivy-modified-buffer))
 
 (defun ivy-rich-switch-buffer-major-mode ()
   (propertize
-   (ivy-rich-switch-buffer-pad
+   (ivy-rich-pad
     (capitalize
      (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode" "" (symbol-name major-mode))))
     ivy-rich-switch-buffer-mode-max-length)
@@ -223,7 +223,7 @@ or /a/…/f.el."
                (not ivy-rich-parse-remote-buffer)))
       nil
     (propertize
-     (ivy-rich-switch-buffer-pad
+     (ivy-rich-pad
       (if (string= (projectile-project-name) "-")
           ""
         (projectile-project-name))
@@ -246,7 +246,7 @@ or /a/…/f.el."
             ;; Workaround for `browse-url-emacs' buffers , it changes
             ;; `default-directory' to "http://" (#25)
             (string-match "https?:\\/\\/" default-directory))
-        (ivy-rich-switch-buffer-pad "" path-max-length)
+        (ivy-rich-pad "" path-max-length)
       (let* (;; Find the project root directory or `default-directory'
              (root (file-truename
                     (if (or (not project)
@@ -275,13 +275,13 @@ or /a/…/f.el."
                           (if (and filename root)
                               (substring-no-properties (string-remove-prefix root filename))
                             "")))))
-        (ivy-rich-switch-buffer-pad
+        (ivy-rich-pad
          (ivy-rich-switch-buffer-shorten-path path path-max-length)
          path-max-length)))))
 
 (defun ivy-rich-switch-buffer-virtual-buffer (str)
   (let* ((filename (file-name-nondirectory (expand-file-name str)))
-         (filename (ivy-rich-switch-buffer-pad
+         (filename (ivy-rich-pad
                     filename
                     (+ ivy-rich-switch-buffer-name-max-length
                        ivy-rich-switch-buffer-indicator-length
@@ -292,9 +292,9 @@ or /a/…/f.el."
          (filename (propertize filename 'face 'ivy-virtual))
          (path (file-name-directory str))
          (path (ivy-rich-switch-buffer-shorten-path path (- (window-width (minibuffer-window)) (length filename))))
-         (path (ivy-rich-switch-buffer-pad path (- (window-width (minibuffer-window))
-                                                   (length filename)
-                                                   2)))  ; Fixed the unexpected wrapping in terminal
+         (path (ivy-rich-pad path (- (window-width (minibuffer-window))
+                                     (length filename)
+                                     2)))  ; Fixed the unexpected wrapping in terminal
          (path (propertize path 'face 'ivy-virtual)))
     (ivy-rich-switch-buffer-format `(,filename ,path))))
 
