@@ -172,14 +172,14 @@ or /a/…/f.el."
    (cl-remove-if #'null columns)
    ivy-rich-switch-buffer-delimiter))
 
-(defun ivy-rich-switch-buffer-indicators (str)
+(defun ivy-rich-switch-buffer-indicators (candidate)
   (let ((modified (if (and (buffer-modified-p)
                            (ivy-rich-switch-buffer-excluded-modes-p '(dired-mode shell-mode))
-                           (ivy-rich-switch-buffer-user-buffer-p str))
+                           (ivy-rich-switch-buffer-user-buffer-p candidate))
                       "*"
                     ""))
         (readonly (if (and buffer-read-only
-                           (ivy-rich-switch-buffer-user-buffer-p str))
+                           (ivy-rich-switch-buffer-user-buffer-p candidate))
                       "!"
                     ""))
         (process (if (get-buffer-process (current-buffer))
@@ -202,9 +202,9 @@ or /a/…/f.el."
       (t (format "%d " size)))
      ivy-rich-switch-buffer-buffer-size-length t)))
 
-(defun ivy-rich-switch-buffer-buffer-name (str)
+(defun ivy-rich-switch-buffer-buffer-name (candidate)
   (propertize
-   (ivy-rich-pad str ivy-rich-switch-buffer-name-max-length)
+   (ivy-rich-pad candidate ivy-rich-switch-buffer-name-max-length)
    'face
    'ivy-modified-buffer))
 
@@ -279,8 +279,8 @@ or /a/…/f.el."
          (ivy-rich-switch-buffer-shorten-path path path-max-length)
          path-max-length)))))
 
-(defun ivy-rich-switch-buffer-virtual-buffer (str)
-  (let* ((filename (file-name-nondirectory (expand-file-name str)))
+(defun ivy-rich-switch-buffer-virtual-buffer (candidate)
+  (let* ((filename (file-name-nondirectory (expand-file-name candidate)))
          (filename (ivy-rich-pad
                     filename
                     (+ ivy-rich-switch-buffer-name-max-length
@@ -290,7 +290,7 @@ or /a/…/f.el."
                        (if (bound-and-true-p projectile-mode) ivy-rich-switch-buffer-project-max-length 0)
                        (* 4 (length ivy-rich-switch-buffer-delimiter)))))
          (filename (propertize filename 'face 'ivy-virtual))
-         (path (file-name-directory str))
+         (path (file-name-directory candidate))
          (path (ivy-rich-switch-buffer-shorten-path path (- (window-width (minibuffer-window)) (length filename))))
          (path (ivy-rich-pad path (- (window-width (minibuffer-window))
                                      (length filename)
@@ -299,25 +299,25 @@ or /a/…/f.el."
     (ivy-rich-switch-buffer-format `(,filename ,path))))
 
 ;;;###autoload
-(defun ivy-rich-switch-buffer-transformer (str)
-  "Transform STR to more readable format.
+(defun ivy-rich-switch-buffer-transformer (candidate)
+  "Transform CANDIDATE to more readable format.
 
 Currently the transformed format is
 
 | Buffer name | Buffer indicators | Major mode | Project | Path (Based on project root) |."
-  (let ((buf (get-buffer str)))
+  (let ((buf (get-buffer candidate)))
     (cond (buf (with-current-buffer buf
-                 (let* ((indicator  (ivy-rich-switch-buffer-indicators str))
+                 (let* ((indicator  (ivy-rich-switch-buffer-indicators candidate))
                         (size       (ivy-rich-switch-buffer-size))
-                        (buf-name   (ivy-rich-switch-buffer-buffer-name str))
+                        (buf-name   (ivy-rich-switch-buffer-buffer-name candidate))
                         (mode       (ivy-rich-switch-buffer-major-mode))
                         (project    (ivy-rich-switch-buffer-project))
                         (path       (ivy-rich-switch-buffer-path project)))
                    (ivy-rich-switch-buffer-format `(,buf-name ,size ,indicator ,mode ,project ,path)))))
           ((and (eq ivy-virtual-abbreviate 'full)
                 ivy-rich-switch-buffer-align-virtual-buffer)
-           (ivy-rich-switch-buffer-virtual-buffer str))
-          (t str))))
+           (ivy-rich-switch-buffer-virtual-buffer candidate))
+          (t candidate))))
 
 
 ;; Utilities for setting and unsetting the transformers
