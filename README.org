@@ -26,23 +26,19 @@
 
 * More friendly interface for ivy
 
-Currently only ~ivy-switch-buffer~ is Supported.
+The package current comes with support for ~ivy-switch-buffer~, ~counsel-M-x~,
+~counsel-describe-function~ and ~counsel-describe-variable~, but it should be
+easy enough to define your own transformers. There are some screenshots
+available in the [[#h:A3BD2C78-CADB-4D4A-AB42-1D8ECD8AB2AD][screenshot section]].
 
-*NOTE*: A new version with customizable transformer is available in [[https://github.com/Yevgnen/ivy-rich/tree/customize][customize
-branch.]] Feedback is welcomed.
-
-** Usage
+** Basie Usages
 
 #+BEGIN_SRC emacs-lisp
   (require 'ivy-rich)
   (ivy-rich-mode 1)
 #+END_SRC
 
-If you want to align the virtual buffers, try
-#+BEGIN_SRC emacs-lisp
-  (setq ivy-virtual-abbreviate 'full
-        ivy-rich-switch-buffer-align-virtual-buffer t)
-#+END_SRC
+*** ~ivy-switch-buffer~
 
 To abbreviate paths using ~abbreviate-file-name~  (e.g. replace "/home/username" with "~")
 #+BEGIN_SRC emacs-lisp
@@ -50,15 +46,178 @@ To abbreviate paths using ~abbreviate-file-name~  (e.g. replace "/home/username"
 #+END_SRC
 Note that this may not affect remote files. To always show absolute path, set it
 to ='full= or ='absolute=. Any other value will show the file path relative to
-the project root or =default-directory=.
+the project root or =default-Directory=.
 
-Use =M-x customize-group ivy-rich= to see more options.
+** Customization
+:PROPERTIES:
+:CUSTOM_ID: h:6A171A3A-50DF-42F6-B19B-321B160F198E
+:END:
+
+The transformer format for each ~ivy~ command is defined in ~plist~
+~ivy-rich--display-transformers-list~, which has a default value
+
+#+BEGIN_SRC elisp
+  '(ivy-switch-buffer
+    (:columns
+     ((ivy-rich-candidate (:width 30))    ; return the candidate itself
+      (ivy-rich-switch-buffer-size (:width 7))  ; return the buffer size
+      (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))  ; return the buffer indicators
+      (ivy-rich-switch-buffer-major-mode (:width 18 :face warning))            ; return major mode info
+      (ivy-rich-switch-buffer-project (:width 15 :face success))               ; return project name using `projectile'
+      (ivy-rich-switch-buffer-path (:width 0.3)))                              ; return file path relative to project root or `default-directory' if project is nil
+     :predicate
+     (lambda (cand) (get-buffer cand)))
+    counsel-M-x
+    (:columns
+     ((counsel-M-x-transformer (:width 40))  ; the original transformer
+      (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))  ; return the docstring of the command
+    counsel-describe-function
+    (:columns
+     ((counsel-describe-function-transformer (:width 40))  ; the original transformer
+      (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))  ; return the dostring of the function
+    counsel-describe-variable
+    (:columns
+     ((counsel-describe-variable-transforme (:width 40))  ; the original transformer
+      (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face))))  ; return the docstring of the variable
+    counsel-recentf
+    (:columns
+     ((ivy-rich-candidate (:width 0.75))  ; return the candidate itself
+      (ivy-rich-file-last-modified-time (:face font-lock-comment-face))))  ; return the last modified time of the file
+    counsel-bookmark
+    (:columns
+     ((ivy-rich-bookmark-file-type)       ; return the file type of the bookmark target
+      (ivy-rich-candidate (:width 0.2))   ; return the bookmark name
+      (ivy-rich-bookmark-file-truename))))  ; return the true name of the related file
+#+END_SRC
+
+Each plist key is a ivy command and plist value is its transformer format
+definitions. The transformer definition is combined with several columns (also
+in ~plist~ format) indicated by ~:columns~ and a filter function predicate
+function indicated by ~:predicate~.
+
+*A transformer is just a string processing function with some format
+properties.* Thus it should be easy to add or remove the columns you want. The
+first element of each element in the value of ~:columns~ is a transform function
+which takes an ivy candidate (string) and should return a transformed
+string. The second element is also a ~plist~ which defines the properties of
+current transformer. Currently supported keywords are ~:width~, ~:face~ and
+~:align~. Reference to the documentation of
+~ivy-rich--display-transformers-list~ for details. Notice that besides using a
+common face for each column, you can still return propertied string in the
+transform function.
+
+If the predicate function is given, only candidate with ~t~ predicate will be
+transformed.
+
+*** Example
+
+**** ~counsel-M-x~
+
+For example, the transformer for ~counsel-M-x~
+
+#+BEGIN_SRC elisp
+  counsel-M-x
+  (:columns
+   ((counsel-M-x-transformer (:width 40))
+    (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))
+#+END_SRC
+
+it defines two columns. The first one is the original built-in transformer with
+max width of 40 chars and the second one transforms the string candidate into a
+docstring with face ~font-lock-doc-face~.
+
+**** Add icons for ~ivy-switch-buffer~
+
+The package [[https://github.com/domtronn/all-the-icons.el][all-the-icons.el]] provides functionality to use icon fonts easily in
+emacs. For example, you can define a transformer
+
+#+BEGIN_SRC elisp
+  (defun ivy-rich-switch-buffer-icon (candidate)
+    (with-current-buffer
+        (get-buffer candidate)
+      (all-the-icons-icon-for-mode major-mode)))
+#+END_SRC
+
+and add it to the ~ivy-rich--display-transformers-List~
+
+#+BEGIN_SRC elisp
+  (setq ivy-rich--display-transformers-list
+        '(ivy-switch-buffer
+          (:columns
+           ((ivy-rich-switch-buffer-icon :width 2)
+            (ivy-rich-candidate (:width 30))
+            (ivy-rich-switch-buffer-size (:width 7))
+            (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+            (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+            (ivy-rich-switch-buffer-project (:width 15 :face success))
+            (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+           :predicate
+           (lambda (cand) (get-buffer cand)))))
+#+END_SRC
+
+You will get
+
+[[file:screenshots/all-the-icons.png]]
+
+** Notes
+
+1. If you modify ~ivy-rich--display-transformers-list~, you may need to disable
+   and re-enable ~ivy-rich-mode~ again to make the changes take effect.
+
+2. If you define transformers for commands comes from neither ~ivy~ nor
+   ~counsel~, e.g. ~counsel-projectile-*~, it currently may not take effect
+   since if you enable ~ivy-rich-mode~ before loading ~counsel-projectile~, the
+   transformer setting is overwritten by loading the package. I am considering
+   to add a ~:package~ keyword in the transformer definition to deal with this.
+
+3. Disabling the minor mode ~ivy-rich-mode~ will restore the transformers to
+   what they were before, but not necessarily to the 'built-in default' one. For
+   example, the default transformer for ~ivy-switch-buffer~ is
+   ~ivy-switch-buffer-transfomer~ from the ~ivy~ package. But if you set the
+   transformer to ~some-function~ before enabling ~ivy-rich-mode~, disabling the
+   minor mode will restore it to ~some-function~ other than
+   ~ivy-switch-buffer-transfomer~.
 
 * Screenshots
+:PROPERTIES:
+:CUSTOM_ID: h:A3BD2C78-CADB-4D4A-AB42-1D8ECD8AB2AD
+:END:
 
 ** ~ivy-switch-buffer~
+
 [[file:screenshots/buffer.png]]
 
-* Notice
+** ~counsel-M-x~
 
-For better user experience, a large ~*-max-length~ should be set.
+[[file:screenshots/counsel-m-x.png]]
+
+** ~counsel-describe-variable~
+
+[[file:screenshots/counsel-describe-variable.png]]
+
+** ~counsel-recentf~
+
+[[file:screenshots/counsel-recentf.png]]
+
+** ~counsel-bookmark~
+
+[[file:screenshots/counsel-bookmark.png]]
+
+
+* Important Changes
+
+Since the version 0.1.0 of ~ivy-rich~, the transformer format can be
+customized. Variables from older version like
+~ivy-rich-switch-buffer-mode-max-length~ or
+~ivy-rich-switch-buffer-project-max-length~ has been deprecated since they are
+now packed into ~ivy-rich--display-transformers-list~ as stated in the
+[[#h:6A171A3A-50DF-42F6-B19B-321B160F198E][customization section]].
+
+Supports for virtual buffers and shorten file paths in ~ivy-switch-buffer~ are
+temporarily Removed.
+
+* Related Packages
+
+- [[https://github.com/casouri/ivy-filthy-rich][ivy-filthy-rich.el]] by @casouri
+
+- [[https://github.com/asok/all-the-icons-ivy][all-the-icons-ivy]] by @asok
