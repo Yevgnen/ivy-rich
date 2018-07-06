@@ -26,7 +26,10 @@
 
 * More friendly interface for ivy
 
-Currently only ~ivy-switch-buffer~ is supported.
+Currently only ~ivy-switch-buffer~ is Supported.
+
+*NOTE*: A new version with customizable transformer is available in [[https://github.com/Yevgnen/ivy-rich/tree/customize][customize
+branch.]] Feedback is welcomed.
 
 ** Usage
 
