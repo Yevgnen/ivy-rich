@@ -115,9 +115,9 @@ to hold the project name."
       (ivy-rich-file-last-modified-time (:face font-lock-comment-face))))
     counsel-bookmark
     (:columns
-     ((ivy-rich-bookmark-file-type)
+     ((ivy-rich-bookmark-type)
       (ivy-rich-candidate (:width 0.2))
-      (ivy-rich-bookmark-file-truename))))
+      (ivy-rich-bookmark-info))))
   "Definitions for ivy-rich transformers.
 
 The definitions should be in the following plist format
@@ -378,9 +378,17 @@ or /a/…/f.el."
   (format-time-string "%Y-%m-%d %H:%M:%S" (nth 5 (file-attributes candidate))))
 
 ;; Supports for `counsel-bookmark'
-(defun ivy-rich-bookmark-file-type (candidate)
-  (let ((filename (cdr (assoc 'filename (cdr (assoc candidate bookmark-alist))))))
-    (cond ((file-remote-p filename)
+(defun ivy-rich-bookmark-value (candidate key)
+  (cdr (assoc key (cdr (assoc candidate bookmark-alist)))))
+
+(defun ivy-rich-bookmark-filename (candidate)
+  (ivy-rich-bookmark-value candidate 'filename))
+
+(defun ivy-rich-bookmark-type (candidate)
+  (let ((filename (ivy-rich-bookmark-filename candidate)))
+    (cond ((null filename)
+           (propertize "NOFILE  " 'face 'warning))  ; fixed #38
+          ((file-remote-p filename)
            (propertize "REMOTE  " 'face 'mode-line-buffer-id))
           ((not (file-exists-p filename))
            (propertize "NOTFOUND" 'face 'error))
@@ -388,10 +396,14 @@ or /a/…/f.el."
            (propertize "DIRED   " 'face 'warning))
           (t (propertize "FILE    " 'face 'success)))))
 
-(defun ivy-rich-bookmark-file-truename (candidate)
-  (if (file-remote-p candidate)
-      candidate
-    (file-truename (cdr (assoc 'filename (cdr (assoc candidate bookmark-alist)))))))
+(defun ivy-rich-bookmark-info (candidate)
+  (let ((filename (ivy-rich-bookmark-filename candidate)))
+    (cond (filename
+           (cond ((null filename)
+                  "")
+                 ((file-remote-p filename)
+                  candidate)
+                 (t (file-truename filename)))))))
 
 ;; Definition of `ivy-rich-mode' ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar ivy-rich--original-display-transformers-list nil)  ; Backup list
