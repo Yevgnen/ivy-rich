@@ -375,7 +375,9 @@ or /a/…/f.el."
 
 ;; Supports for `counsel-recentf'
 (defun ivy-rich-file-last-modified-time (candidate)
-  (format-time-string "%Y-%m-%d %H:%M:%S" (nth 5 (file-attributes candidate))))
+  (if (file-remote-p candidate)
+      ""
+    (format-time-string "%Y-%m-%d %H:%M:%S" (nth 5 (file-attributes candidate)))))
 
 ;; Supports for `counsel-bookmark'
 (defun ivy-rich-bookmark-value (candidate key)
