@@ -112,12 +112,7 @@ to hold the project name."
     counsel-recentf
     (:columns
      ((ivy-rich-candidate (:width 0.8))
-      (ivy-rich-file-last-modified-time (:face font-lock-comment-face))))
-    counsel-bookmark
-    (:columns
-     ((ivy-rich-bookmark-type)
-      (ivy-rich-candidate (:width 0.2))
-      (ivy-rich-bookmark-info))))
+      (ivy-rich-file-last-modified-time (:face font-lock-comment-face)))))
   "Definitions for ivy-rich transformers.
 
 The definitions should be in the following plist format

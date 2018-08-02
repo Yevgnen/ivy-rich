@@ -82,12 +82,7 @@ The transformer format for each ~ivy~ command is defined in ~plist~
     counsel-recentf
     (:columns
      ((ivy-rich-candidate (:width 0.75))  ; return the candidate itself
-      (ivy-rich-file-last-modified-time (:face font-lock-comment-face))))  ; return the last modified time of the file
-    counsel-bookmark
-    (:columns
-     ((ivy-rich-bookmark-file-type)       ; return the file type of the bookmark target
-      (ivy-rich-candidate (:width 0.2))   ; return the bookmark name
-      (ivy-rich-bookmark-file-truename))))  ; return the true name of the related file
+      (ivy-rich-file-last-modified-time (:face font-lock-comment-face)))))  ; return the last modified time of the file
 #+END_SRC
 
 Each plist key is a ivy command and plist value is its transformer format
