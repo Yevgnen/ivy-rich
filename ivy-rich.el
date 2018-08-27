@@ -242,10 +242,6 @@ Note that this variable takes effect only when
            (buffer-name buffer))))
     (not (string-match "^\\*" buffer-name))))
 
-(defun ivy-rich-switch-buffer-excluded-modes-p (modes)
-  "Check whether major mode of current buffer is excluded in MODES."
-  (not (memq major-mode modes)))
-
 (defun ivy-rich-switch-buffer-shorten-path (file len)
   "Shorten the path of FILE until the length of FILE <= LEN.
 
@@ -268,7 +264,7 @@ or /a/…/f.el."
   (with-current-buffer
       (get-buffer candidate)
     (let ((modified (if (and (buffer-modified-p)
-                             (ivy-rich-switch-buffer-excluded-modes-p '(dired-mode shell-mode))
+                             (not (derived-mode-p 'dired-mode 'comint-mode 'eshell-mode))
                              (ivy-rich-switch-buffer-user-buffer-p candidate))
                         "*"
                       ""))
