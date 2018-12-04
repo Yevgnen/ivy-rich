@@ -352,8 +352,11 @@ or /a/…/f.el."
 
 ;; Supports for `counsel-M-x', `counsel-describe-function', `counsel-describe-variable'
 (defun ivy-rich-counsel-function-docstring (candidate)
-  (let ((doc (documentation (intern candidate))))
-    (if (and doc (string-match "^\\(.+\\)\\([\r\n]\\)?" doc))
+  (let ((doc (replace-regexp-in-string
+              ":\\(\\(before\\|after\\)\\(-\\(whilte\\|until\\)\\)?\\|around\\|override\\|\\(filter-\\(args\\|return\\)\\)\\) advice:[ ]*‘.+?’[\r\n]+"
+              ""
+              (or (documentation (intern candidate)) ""))))
+    (if (string-match "^\\(.+\\)\\([\r\n]\\)?" doc)
         (setq doc (match-string 1 doc))
       "")))
 
