@@ -401,6 +401,15 @@ or /a/…/f.el."
                   candidate)
                  (t (file-truename filename)))))))
 
+;; Supports for `counsel-projectile'
+;; Possible setup:
+;; counsel-projectile-switch-project
+;; (:columns
+;;  ((ivy-rich-counsel-projectile-switch-project-project-name (:width 20 :face success))
+;;   (ivy-rich-candidate)))
+(defun ivy-rich-counsel-projectile-switch-project-project-name (candidate)
+  (or (projectile-project-name candidate) ""))
+
 ;; Definition of `ivy-rich-mode' ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar ivy-rich--original-display-transformers-list nil)  ; Backup list
 
