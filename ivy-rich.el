@@ -346,7 +346,12 @@ or /a/…/f.el."
                          ((or (eq ivy-rich-path-style 'relative)
                               t)            ; make 'relative default
                           (if (and filename root)
-                              (substring-no-properties (string-remove-prefix root filename))
+                              (let ((relative-path (string-remove-prefix root filename)))
+                                (if (string= relative-path candidate)
+                                    (file-name-as-directory
+                                     (file-name-nondirectory
+                                      (directory-file-name (file-name-directory filename))))
+                                  relative-path))
                             "")))))
         path))))
 
