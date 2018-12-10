@@ -489,6 +489,12 @@ or /a/…/f.el."
         (ivy-rich-set-display-transformer))
     (ivy-rich-unset-display-transformer)))
 
+;;;###autoload
+(defun ivy-rich-reload ()
+  (when ivy-rich-mode
+    (ivy-rich-mode -1)
+    (ivy-rich-mode 1)))
+
 (provide 'ivy-rich)
 
 ;;; ivy-rich.el ends here
