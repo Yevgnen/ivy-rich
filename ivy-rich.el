@@ -4,7 +4,7 @@
 
 ;; Author: Yevgnen Koh <wherejoystarts@gmail.com>
 ;; Package-Requires: ((emacs "24.4") (ivy "0.8.0"))
-;; Version: 0.1.1
+;; Version: 0.1.2
 ;; Keywords: ivy
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -86,7 +86,7 @@ to hold the project name."
   :type 'boolean)
 (make-obsolete-variable 'ivy-rich-switch-buffer-align-virtual-buffer obsolete-message "0.1.0")
 
-(defcustom ivy-rich--display-transformers-list
+(defcustom ivy-rich-display-transformers-list
   '(ivy-switch-buffer
     (:columns
      ((ivy-rich-candidate (:width 30))
@@ -156,6 +156,11 @@ predication will not be transformed.
 
 Note that you may need to disable and enable the `ivy-rich-mode'
 again to make this variable take effect.")
+(define-obsolete-variable-alias
+  'ivy-rich--display-transformers-list
+  'ivy-rich-display-transformers-list
+  "0.1.2"
+  "Used `ivy-rich-display-transformers-list' instead.")
 
 ;; Common Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defalias 'ivy-rich-candidate 'identity)
@@ -466,7 +471,7 @@ or /a/…/f.el."
           (ivy-rich-format candidate columns delimiter))))))
 
 (defun ivy-rich-set-display-transformer ()
-  (cl-loop for (cmd transformer-props) on ivy-rich--display-transformers-list by 'cddr do
+  (cl-loop for (cmd transformer-props) on ivy-rich-display-transformers-list by 'cddr do
            (let* ((cmd-string (symbol-name cmd))
                   (package (if (string-match "^\\(swiper\\|counsel\\)" cmd-string)
                                (match-string 1 cmd-string))))
