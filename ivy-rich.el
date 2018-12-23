@@ -312,9 +312,10 @@ or /a/…/f.el."
   (with-current-buffer
       (get-buffer candidate)
     (if (ivy-rich-switch-buffer-in-propject-p candidate)
-        (if (string= (projectile-project-name) "-")
-            ""
-          (projectile-project-name))
+        (let ((project (projectile-project-name)))
+          (if (string= project "-")
+              ""
+            project))
       "")))
 
 (defun ivy-rich-switch-buffer-path (candidate)
