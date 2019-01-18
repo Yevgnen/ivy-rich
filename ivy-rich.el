@@ -262,28 +262,36 @@ or /a/…/f.el."
           (ivy-rich-switch-buffer-shorten-path new-file len)))
     file))
 
+(defun ivy-rich--local-values (buffer args)
+  (let ((buffer (get-buffer buffer)))
+    (if (listp args)
+        (mapcar #'(lambda (x) (buffer-local-value x buffer)) args)
+      (buffer-local-value args buffer))))
+
 (defun ivy-rich-switch-buffer-buffer-name (candidate)
   candidate)
 
 (defun ivy-rich-switch-buffer-indicators (candidate)
-  (with-current-buffer
-      (get-buffer candidate)
-    (let ((modified (if (and (buffer-modified-p)
-                             (not (derived-mode-p 'dired-mode 'comint-mode 'eshell-mode))
-                             (ivy-rich-switch-buffer-user-buffer-p candidate))
-                        "*"
-                      ""))
-          (readonly (if (and buffer-read-only
-                             (ivy-rich-switch-buffer-user-buffer-p candidate))
-                        "!"
-                      ""))
-          (process (if (get-buffer-process (current-buffer))
-                       "&"
-                     ""))
-          (remote (if (file-remote-p (or (buffer-file-name) default-directory))
-                      "@"
-                    "")))
-      (format "%s%s%s%s" remote readonly modified process))))
+  (let* ((buffer (get-buffer candidate))
+         (process-p (get-buffer-process buffer)))
+    (destructuring-bind
+        (mode filename directory read-only)
+        (ivy-rich--local-values candidate '(major-mode buffer-file-name default-directory buffer-read-only))
+      (let ((modified (if (and (buffer-modified-p buffer)
+                               (null process-p)
+                               (ivy-rich-switch-buffer-user-buffer-p candidate))
+                          "*"
+                        ""))
+            (readonly (if (and read-only (ivy-rich-switch-buffer-user-buffer-p candidate))
+                          "!"
+                        ""))
+            (process (if process-p
+                         "&"
+                       ""))
+            (remote (if (file-remote-p (or filename directory))
+                        "@"
+                      "")))
+        (format "%s%s%s%s" remote readonly modified process)))))
 
 (defun ivy-rich-switch-buffer-size (candidate)
   (with-current-buffer
@@ -295,71 +303,76 @@ or /a/…/f.el."
        (t (format "%d " size))))))
 
 (defun ivy-rich-switch-buffer-major-mode (candidate)
-  (with-current-buffer
-      (get-buffer candidate)
-    (capitalize
-     (replace-regexp-in-string "-" " " (replace-regexp-in-string "-mode" "" (symbol-name major-mode))))))
+  (capitalize
+   (replace-regexp-in-string
+    "-"
+    " "
+    (replace-regexp-in-string
+     "-mode"
+     ""
+     (symbol-name (ivy-rich--local-values candidate 'major-mode))))))
 
 (defun ivy-rich-switch-buffer-in-propject-p (candidate)
   (with-current-buffer
       (get-buffer candidate)
-    (and (and (bound-and-true-p projectile-mode)
-              (projectile-project-p))
-         (not (and (file-remote-p (or (buffer-file-name) default-directory))
-                   (not ivy-rich-parse-remote-buffer))))))
+    (unless (or (and (file-remote-p (or (buffer-file-name) default-directory))
+                     (not ivy-rich-parse-remote-buffer))
+                ;; Workaround for `browse-url-emacs' buffers , it changes
+                ;; `default-directory' to "http://" (#25)
+                (string-match "https?:\\/\\/" default-directory))
+      (if (bound-and-true-p projectile-mode)
+          (let ((project (projectile-project-name)))
+            (unless (string= project "-")
+              project))))))
 
 (defun ivy-rich-switch-buffer-project (candidate)
-  (with-current-buffer
-      (get-buffer candidate)
-    (if (ivy-rich-switch-buffer-in-propject-p candidate)
-        (let ((project (projectile-project-name)))
-          (if (string= project "-")
-              ""
-            project))
-      "")))
+  (or (ivy-rich-switch-buffer-in-propject-p candidate) ""))
+
+(defun ivy-rich--switch-buffer-root-and-filename (candidate)
+  (let* ((buffer (get-buffer candidate)))
+    (destructuring-bind
+        (filename directory mode)
+        (ivy-rich--local-values buffer '(buffer-file-name default-directory major-mode))
+      ;; Only make sense when `filename' and `root' are both not `nil'
+      (unless (or (null filename)
+                  (null directory)
+                  (and (file-remote-p (or filename directory))
+                       (not ivy-rich-parse-remote-buffer))
+                  (eq mode 'dired-mode))
+        ;; Find the project root directory or `default-directory'
+        (when (ivy-rich-switch-buffer-in-propject-p candidate)
+          (setq directory (or (ivy-rich--local-values buffer 'projectile-project-root)
+                              (with-current-buffer buffer (projectile-project-root))))
+          (if filename
+              (setq filename (or (ivy-rich--local-values buffer 'buffer-file-truename)
+                                 (file-truename filename)))))
+        (cons (expand-file-name directory)
+              (expand-file-name filename))))))
 
 (defun ivy-rich-switch-buffer-path (candidate)
-  (with-current-buffer
-      (get-buffer candidate)
-    (if (or (and (file-remote-p (or (buffer-file-name) default-directory))
-                 (not ivy-rich-parse-remote-buffer))
-            ;; Workaround for `browse-url-emacs' buffers , it changes
-            ;; `default-directory' to "http://" (#25)
-            (string-match "https?:\\/\\/" default-directory))
-        ""
-      (let* (;; Find the project root directory or `default-directory'
-             (root (file-truename
-                    (if (ivy-rich-switch-buffer-in-propject-p candidate)
-                        (projectile-project-root)
-                      default-directory)))
-             ;; Find the file name or `nil'
-             (filename
-              (if (buffer-file-name)
-                  (if (and (buffer-file-name)
-                           (string-match "^https?:\\/\\/" (buffer-file-name))
-                           (not (file-exists-p (buffer-file-name))))
-                      nil
-                    (file-truename (buffer-file-name)))
-                (if (eq major-mode 'dired-mode)
-                    (file-truename (dired-current-directory))
-                  nil)))
-             (path (cond ((or (memq ivy-rich-path-style '(full absolute))
-                              (and (null ivy-rich-parse-remote-file-path)
-                                   (or (file-remote-p root))))
-                          (expand-file-name (or filename root)))
-                         ((memq ivy-rich-path-style '(abbreviate abbrev))
-                          (abbreviate-file-name (or filename root)))
-                         ((or (eq ivy-rich-path-style 'relative)
-                              t)            ; make 'relative default
-                          (if (and filename root)
-                              (let ((relative-path (string-remove-prefix root filename)))
-                                (if (string= relative-path candidate)
-                                    (file-name-as-directory
-                                     (file-name-nondirectory
-                                      (directory-file-name (file-name-directory filename))))
-                                  relative-path))
-                            "")))))
-        path))))
+  (if-let ((result (ivy-rich--switch-buffer-root-and-filename candidate)))
+      (destructuring-bind (root . filename) result
+        (cond
+         ;; Case: absolute
+         ((or (memq ivy-rich-path-style '(full absolute))
+              (and (null ivy-rich-parse-remote-file-path)
+                   (or (file-remote-p root))))
+          (or filename root))
+         ;; Case: abbreviate
+         ((memq ivy-rich-path-style '(abbreviate abbrev))
+          (abbreviate-file-name (or filename root)))
+         ;; Case: relative
+         ((or (eq ivy-rich-path-style 'relative)
+              t)            ; make 'relative default
+          (if (and filename root)
+              (let ((relative-path (string-remove-prefix root filename)))
+                (if (string= relative-path candidate)
+                    (file-name-as-directory
+                     (file-name-nondirectory
+                      (directory-file-name (file-name-directory filename))))
+                  relative-path))
+            ""))))
+    ""))
 
 ;; Supports for `counsel-M-x', `counsel-describe-function', `counsel-describe-variable'
 (defun ivy-rich-counsel-function-docstring (candidate)
