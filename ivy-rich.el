@@ -4,7 +4,7 @@
 
 ;; Author: Yevgnen Koh <wherejoystarts@gmail.com>
 ;; Package-Requires: ((emacs "24.4") (ivy "0.8.0"))
-;; Version: 0.1.2
+;; Version: 0.1.3
 ;; Keywords: ivy
 
 ;; This program is free software; you can redistribute it and/or modify
