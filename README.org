@@ -41,6 +41,12 @@ easy enough to define your own transformers. Screenshots are  available [[#h:A3B
   (ivy-rich-mode 1)
 #+END_SRC
 
+It is recommended to set also
+
+#+begin_src emacs-lisp
+  (setq ivy-format-function #'ivy-format-function-line)
+#+end_src
+
 ** Customization
 :PROPERTIES:
 :CUSTOM_ID: h:6A171A3A-50DF-42F6-B19B-321B160F198E
