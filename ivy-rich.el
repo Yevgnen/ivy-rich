@@ -324,7 +324,7 @@ or /a/…/f.el."
              (let ((project (projectile-project-name)))
                (unless (string= project "-")
                  project)))
-            ((featurep 'project)
+            ((require 'project nil t)
              (let ((project (project-current)))
                (when project
                  (file-name-nondirectory
@@ -351,7 +351,7 @@ or /a/…/f.el."
                               ((bound-and-true-p projectile-mode)
                                (with-current-buffer buffer
                                  (projectile-project-root)))
-                              ((featurep 'project)
+                              ((require 'project nil t)
                                (with-current-buffer buffer
                                  (setq truenamep nil)
                                  (car (project-roots (project-current)))))))
