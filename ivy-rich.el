@@ -347,10 +347,10 @@ or /a/…/f.el."
                  (not (eq mode 'dired-mode))
                  (ivy-rich-switch-buffer-in-project-p candidate))
         ;; Find the project root directory or `default-directory'
-        (setq directory (cond ((ivy-rich--local-values buffer 'projectile-project-root))
-                              ((bound-and-true-p projectile-mode)
-                               (with-current-buffer buffer
-                                 (projectile-project-root)))
+        (setq directory (cond ((bound-and-true-p projectile-mode)
+                               (or (ivy-rich--local-values buffer 'projectile-project-root)
+                                   (with-current-buffer buffer
+                                     (projectile-project-root))))
                               ((require 'project nil t)
                                (with-current-buffer buffer
                                  (setq truenamep nil)
