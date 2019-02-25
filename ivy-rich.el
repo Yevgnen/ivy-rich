@@ -312,7 +312,7 @@ or /a/…/f.el."
      ""
      (symbol-name (ivy-rich--local-values candidate 'major-mode))))))
 
-(defun ivy-rich-switch-buffer-in-propject-p (candidate)
+(defun ivy-rich-switch-buffer-in-project-p (candidate)
   (with-current-buffer
       (get-buffer candidate)
     (unless (or (and (file-remote-p (or (buffer-file-name) default-directory))
@@ -320,32 +320,44 @@ or /a/…/f.el."
                 ;; Workaround for `browse-url-emacs' buffers , it changes
                 ;; `default-directory' to "http://" (#25)
                 (string-match "https?:\\/\\/" default-directory))
-      (if (bound-and-true-p projectile-mode)
-          (let ((project (projectile-project-name)))
-            (unless (string= project "-")
-              project))))))
+      (cond ((bound-and-true-p projectile-mode)
+             (let ((project (projectile-project-name)))
+               (unless (string= project "-")
+                 project)))
+            ((require 'project nil t)
+             (let ((project (project-current)))
+               (when project
+                 (file-name-nondirectory
+                  (directory-file-name
+                   (car (project-roots project)))))))))))
 
 (defun ivy-rich-switch-buffer-project (candidate)
-  (or (ivy-rich-switch-buffer-in-propject-p candidate) ""))
+  (or (ivy-rich-switch-buffer-in-project-p candidate) ""))
 
 (defun ivy-rich--switch-buffer-root-and-filename (candidate)
-  (let* ((buffer (get-buffer candidate)))
+  (let* ((buffer (get-buffer candidate))
+         (truenamep t))
     (destructuring-bind
         (filename directory mode)
         (ivy-rich--local-values buffer '(buffer-file-name default-directory major-mode))
       ;; Only make sense when `filename' and `root' are both not `nil'
-      (unless (or (null filename)
-                  (null directory)
-                  (and (file-remote-p (or filename directory))
-                       (not ivy-rich-parse-remote-buffer))
-                  (eq mode 'dired-mode))
+      (when (and filename
+                 directory
+                 (if (file-remote-p filename) ivy-rich-parse-remote-buffer t)
+                 (not (eq mode 'dired-mode))
+                 (ivy-rich-switch-buffer-in-project-p candidate))
         ;; Find the project root directory or `default-directory'
-        (when (ivy-rich-switch-buffer-in-propject-p candidate)
-          (setq directory (or (ivy-rich--local-values buffer 'projectile-project-root)
-                              (with-current-buffer buffer (projectile-project-root))))
-          (if filename
-              (setq filename (or (ivy-rich--local-values buffer 'buffer-file-truename)
-                                 (file-truename filename)))))
+        (setq directory (cond ((bound-and-true-p projectile-mode)
+                               (or (ivy-rich--local-values buffer 'projectile-project-root)
+                                   (with-current-buffer buffer
+                                     (projectile-project-root))))
+                              ((require 'project nil t)
+                               (with-current-buffer buffer
+                                 (setq truenamep nil)
+                                 (car (project-roots (project-current)))))))
+        (if truenamep
+            (setq filename (or (ivy-rich--local-values buffer 'buffer-file-truename)
+                               (file-truename filename))))
         (cons (expand-file-name directory)
               (expand-file-name filename))))))
 
