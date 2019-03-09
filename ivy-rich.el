@@ -391,14 +391,14 @@ or /a/…/f.el."
   (let ((doc (replace-regexp-in-string
               ":\\(\\(before\\|after\\)\\(-\\(whilte\\|until\\)\\)?\\|around\\|override\\|\\(filter-\\(args\\|return\\)\\)\\) advice:[ ]*‘.+?’[\r\n]+"
               ""
-              (or (documentation (intern candidate)) ""))))
+              (or (ignore-errors (documentation (intern-soft candidate))) ""))))
     (if (string-match "^\\(.+\\)\\([\r\n]\\)?" doc)
         (setq doc (match-string 1 doc))
       "")))
 
 (defun ivy-rich-counsel-variable-docstring (candidate)
   (let ((doc (documentation-property
-              (intern candidate) 'variable-documentation)))
+              (intern-soft candidate) 'variable-documentation)))
     (if (and doc (string-match "^\\(.+\\)\\([\r\n]\\)?" doc))
         (setq doc (match-string 1 doc))
       "")))
