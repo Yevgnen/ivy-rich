@@ -122,16 +122,20 @@ docstring with face ~font-lock-doc-face~.
 **** Add icons for ~ivy-switch-buffer~
 
 The package [[https://github.com/domtronn/all-the-icons.el][all-the-icons.el]] provides functionality to use icon fonts easily in
-emacs. For example, you can define a transformer
+emacs. For example, you can define a transformer by following code
 
 #+BEGIN_SRC elisp
-    (defun ivy-rich-switch-buffer-icon (candidate)
-      (with-current-buffer
-    	  (get-buffer candidate)
-	(let ((icon (all-the-icons-icon-for-mode major-mode)))
-	  (if (symbolp icon)
-	      (all-the-icons-icon-for-mode 'fundamental-mode)
-	    icon))))
+  (defun pick-effective-icon (x) (if (symbolp x) nil x))
+  (defun icon-for-file-name ()
+    (if buffer-file-name
+        (pick-effective-icon (all-the-icons-icon-for-file buffer-file-name))))
+  (defun icon-for-mode ()
+    (pick-effective-icon (all-the-icons-icon-for-mode major-mode)))
+  (defvar icon-fallback (all-the-icons-icon-for-mode 'fundamental-mode))
+  (defun ivy-rich-switch-buffer-icon (candidate)
+    (with-current-buffer
+        (get-buffer candidate)
+      (or (icon-for-mode) (icon-for-file-name) icon-fallback)))
 #+END_SRC
 
 and add it to the ~ivy-rich--display-transformers-List~
