@@ -199,7 +199,7 @@ using …."
 
 ;; Supports for `ivy-switch-buffer' ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defcustom ivy-rich-path-style
-  'relative
+  'abbrev
   "File path style.
 
 When set to 'full or 'absolute, absolute path will be used.
