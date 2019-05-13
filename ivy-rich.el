@@ -334,6 +334,43 @@ or /a/…/f.el."
 (defun ivy-rich-switch-buffer-project (candidate)
   (or (ivy-rich-switch-buffer-in-project-p candidate) ""))
 
+(defun ivy-rich--switch-buffer-filename (candidate)
+  (let* ((buffer (get-buffer candidate)))
+    (cl-destructuring-bind
+        (filename mode)
+        (ivy-rich--local-values buffer '(buffer-file-name major-mode))
+      (when (and filename
+                 (if (file-remote-p filename) ivy-rich-parse-remote-buffer t)
+                 (not (eq mode 'dired-mode)))
+        ;; when projectile is not available, we check for project mode and use
+        ;; it to disable file-truename (for some reason)
+        (when (not (and (not (bound-and-true-p projectile-mode))
+                        (require 'project nil t)))
+          (setq filename
+                (or (ivy-rich--local-values buffer 'buffer-file-truename)
+                    (file-truename filename))))
+        (expand-file-name filename)))))
+
+(defun ivy-rich--switch-buffer-root (candidate)
+  (let* ((buffer (get-buffer candidate)))
+    (cl-destructuring-bind
+        (directory mode)
+        (ivy-rich--local-values buffer '(default-directory major-mode))
+      (when (and directory
+                 (not (eq mode 'dired-mode))
+                 (ivy-rich-switch-buffer-in-project-p candidate))
+        ;; Find the project root directory or `default-directory'
+        (setq directory
+              (cond ((bound-and-true-p projectile-mode)
+                     (or (ivy-rich--local-values buffer
+                                                 'projectile-project-root)
+                         (with-current-buffer buffer
+                           (projectile-project-root))))
+                    ((require 'project nil t)
+                     (with-current-buffer buffer
+                       (car (project-roots (project-current)))))))
+        (expand-file-name directory)))))
+
 (defun ivy-rich--switch-buffer-root-and-filename (candidate)
   (let* ((buffer (get-buffer candidate))
          (truenamep t))
@@ -361,30 +398,39 @@ or /a/…/f.el."
         (cons (expand-file-name directory)
               (expand-file-name filename))))))
 
+(defun ivy-rich--switch-buffer-file-name-or-root (candidate)
+  (or (ivy-rich--switch-buffer-filename candidate)
+      (ivy-rich--switch-buffer-root candidate)))
+
 (defun ivy-rich-switch-buffer-path (candidate)
-  (if-let ((result (ivy-rich--switch-buffer-root-and-filename candidate)))
-      (cl-destructuring-bind (root . filename) result
-        (cond
-         ;; Case: absolute
-         ((or (memq ivy-rich-path-style '(full absolute))
-              (and (null ivy-rich-parse-remote-file-path)
-                   (or (file-remote-p root))))
-          (or filename root))
-         ;; Case: abbreviate
-         ((memq ivy-rich-path-style '(abbreviate abbrev))
-          (abbreviate-file-name (or filename root)))
-         ;; Case: relative
-         ((or (eq ivy-rich-path-style 'relative)
-              t)            ; make 'relative default
-          (if (and filename root)
-              (let ((relative-path (string-remove-prefix root filename)))
-                (if (string= relative-path candidate)
-                    (file-name-as-directory
-                     (file-name-nondirectory
-                      (directory-file-name (file-name-directory filename))))
-                  relative-path))
-            ""))))
-    ""))
+  (cond
+   ;; Case: abbreviate
+   ((memq ivy-rich-path-style '(abbreviate abbrev))
+    (if-let ((path (ivy-rich--switch-buffer-file-name-or-root candidate)))
+        (abbreviate-file-name path)))
+   ;; Case: absolute
+   ((memq ivy-rich-path-style '(full absolute))
+    (ivy-rich--switch-buffer-file-name-or-root candidate))
+   ;; Case: remote
+   (t
+    (if-let
+        ((result (ivy-rich--switch-buffer-root-and-filename candidate)))
+        (cl-destructuring-bind (root . filename) result
+          (cond
+           ((and (null ivy-rich-parse-remote-file-path)
+                 (file-remote-p root))
+            (or filename root))
+           ;; Case: relative
+           ((or (eq ivy-rich-path-style 'relative)
+                t)            ; make 'relative default
+            (if (and filename root)
+                (let ((relative-path (string-remove-prefix root filename)))
+                  (if (string= relative-path candidate)
+                      (file-name-as-directory
+                       (file-name-nondirectory
+                        (directory-file-name (file-name-directory filename))))
+                    relative-path))
+              ""))))))))
 
 ;; Supports for `counsel-M-x', `counsel-describe-function', `counsel-describe-variable'
 (defun ivy-rich-counsel-function-docstring (candidate)
