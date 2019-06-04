@@ -97,6 +97,10 @@ to hold the project name."
       (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
      :predicate
      (lambda (cand) (get-buffer cand)))
+    counsel-find-file
+    (:columns
+     ((ivy-read-file-transformer)
+      (ivy-rich-counsel-find-file-truename (:face font-lock-doc-face))))
     counsel-M-x
     (:columns
      ((counsel-M-x-transformer (:width 40))
@@ -385,6 +389,14 @@ or /a/…/f.el."
                   relative-path))
             ""))))
     ""))
+
+
+;; Supports for `counsel-find-file'
+(defun ivy-rich-counsel-find-file-truename (candidate)
+  (let ((type (car (file-attributes (directory-file-name (expand-file-name candidate ivy--directory))))))
+    (if (stringp type)
+        (concat "-> " (expand-file-name type ivy--directory))
+      "")))
 
 ;; Supports for `counsel-M-x', `counsel-describe-function', `counsel-describe-variable'
 (defun ivy-rich-counsel-function-docstring (candidate)
