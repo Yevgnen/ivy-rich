@@ -116,7 +116,11 @@ to hold the project name."
     counsel-recentf
     (:columns
      ((ivy-rich-candidate (:width 0.8))
-      (ivy-rich-file-last-modified-time (:face font-lock-comment-face)))))
+      (ivy-rich-file-last-modified-time (:face font-lock-comment-face))))
+    package-install
+    (:columns
+     ((ivy-rich-candidate (:width 40))
+      (ivy-rich-package-install-summary (:face font-lock-doc-face)))))
   "Definitions for ivy-rich transformers.
 
 The definitions should be in the following plist format
@@ -457,6 +461,11 @@ or /a/…/f.el."
 ;;   (ivy-rich-candidate)))
 (defun ivy-rich-counsel-projectile-switch-project-project-name (candidate)
   (or (projectile-project-name candidate) ""))
+
+;; Supports for `package-install'
+(defun ivy-rich-package-install-summary (candidate)
+    (let ((package-desc (cadr (assoc-string candidate package-archive-contents))))
+      (if package-desc (package-desc-summary package-desc) "")))
 
 ;; Definition of `ivy-rich-mode' ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar ivy-rich--original-display-transformers-list nil)  ; Backup list

@@ -34,7 +34,7 @@ easy enough to define your own transformers. Screenshots are  available [[#h:A3B
 
 ~package-install RET ivy-rich RET~
 
-** Basie Usages
+** Basic Usages
 
 #+BEGIN_SRC emacs-lisp
   (require 'ivy-rich)
@@ -211,6 +211,10 @@ this function under ~tramp~.
 ** ~counsel-bookmark~
 
 [[file:screenshots/counsel-bookmark.png]]
+
+** ~package-install~
+
+[[file:screenshots/package-install.png]]
 
 
 * Important Changes
