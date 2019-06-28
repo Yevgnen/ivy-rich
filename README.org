@@ -44,7 +44,7 @@ easy enough to define your own transformers. Screenshots are  available [[#h:A3B
 It is recommended to set also
 
 #+begin_src emacs-lisp
-  (setq ivy-format-function #'ivy-format-function-line)
+  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
 #+end_src
 
 ** Customization
