@@ -119,7 +119,9 @@ to hold the project name."
       (ivy-rich-file-last-modified-time (:face font-lock-comment-face))))
     package-install
     (:columns
-     ((ivy-rich-candidate (:width 40))
+     ((ivy-rich-candidate (:width 30))
+      (ivy-rich-package-version (:width 16 :face font-lock-comment-face))
+      (ivy-rich-package-archive-summary (:width 7 :face font-lock-builtin-face))
       (ivy-rich-package-install-summary (:face font-lock-doc-face)))))
   "Definitions for ivy-rich transformers.
 
@@ -466,6 +468,14 @@ or /a/…/f.el."
 (defun ivy-rich-package-install-summary (candidate)
     (let ((package-desc (cadr (assoc-string candidate package-archive-contents))))
       (if package-desc (package-desc-summary package-desc) "")))
+
+(defun ivy-rich-package-archive-summary (candidate)
+    (let ((package-arch (cadr (assoc-string candidate package-archive-contents))))
+      (if package-arch (package-desc-archive package-arch) "")))
+
+(defun ivy-rich-package-version (candidate)
+    (let ((package-vers (cadr (assoc-string candidate package-archive-contents))))
+      (if package-vers (package-version-join (package-desc-version package-vers)) "")))
 
 ;; Definition of `ivy-rich-mode' ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar ivy-rich--original-display-transformers-list nil)  ; Backup list
