@@ -229,6 +229,14 @@ now packed into ~ivy-rich--display-transformers-list~ as stated in the
 Supports for virtual buffers and shorten file paths in ~ivy-switch-buffer~ are
 temporarily Removed.
 
+* FAQ
+
+- Can I search buffers by ~major-mode~, ~project~ in ~ivy-switch-buffer~?
+
+  No, as far as I know, you can not right now. ~ivy-rich~ provides just transformers to display the original ~ivy~ candidates in a different way. It does not modify the original candidates. At least for now I have no idea how to add feature to search in the transformer columns. It probably requires some change in ~ivy~.
+
+So you can not search the description of ~counsel-describe-function~ neither.
+
 * Related Packages
 
 - [[https://github.com/casouri/ivy-filthy-rich][ivy-filthy-rich.el]] by @casouri
