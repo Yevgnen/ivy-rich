@@ -68,7 +68,7 @@ The transformer format for each ~ivy~ command is defined in ~plist~
      (lambda (cand) (get-buffer cand)))
     counsel-M-x
     (:columns
-     ((counsel-M-x-transformer (:width 40))  ; thr original transfomer
+     ((counsel-M-x-transformer (:width 40))  ; thr original transformer
       (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))  ; return the docstring of the command
     counsel-describe-function
     (:columns
@@ -169,10 +169,10 @@ You will get
 3. Disabling the minor mode ~ivy-rich-mode~ will restore the transformers to
    what they were before, but *not* necessarily to the 'built-in default'
    one. For example, the default transformer for ~ivy-switch-buffer~ is
-   ~ivy-switch-buffer-transfomer~ from the ~ivy~ package. But if you set the
+   ~ivy-switch-buffer-transformer~ from the ~ivy~ package. But if you set the
    transformer to ~some-function~ before enabling ~ivy-rich-mode~, disabling the
    minor mode will restore it to ~some-function~ other than
-   ~ivy-switch-buffer-transfomer~.
+   ~ivy-switch-buffer-transformer~.
 
 * Screenshots and details
 :PROPERTIES:
