@@ -179,8 +179,8 @@ again to make this variable take effect.")
   (or (null str)
       (string-empty-p (string-trim str))))
 
-(defun ivy-rich-normailze-width (str len &optional left)
-  "Normailze the width of a string.
+(defun ivy-rich-normalize-width (str len &optional left)
+  "Normalize the width of a string.
 
 If the length of STR is smaller than LEN, the string is padded
 using spaces from right if LEFT is nil or from left if left is
@@ -502,7 +502,7 @@ or /a/…/f.el."
           (setq formated (funcall width formated))
         (if (floatp width)
             (setq width (floor (* (window-width (minibuffer-window)) width))))
-        (setq formated (ivy-rich-normailze-width formated width (eq align 'left)))))
+        (setq formated (ivy-rich-normalize-width formated width (eq align 'left)))))
     (if face
         (setq formated (propertize formated 'face face)))
     formated))
