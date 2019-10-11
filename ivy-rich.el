@@ -158,7 +158,7 @@ should be set to 'left (default if not given) or 'right to
 indicate where to pad extra spaces to the columns for alignment.
 
 The value of :delimiter should be a string for current
-transformter. If not given, the default is a single space.
+transformer. If not given, the default is a single space.
 
 If :predicate is provide, it should be a function which takes the
 completion candidate as single argument. A candidate with nil
