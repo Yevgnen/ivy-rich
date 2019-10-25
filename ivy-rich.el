@@ -437,7 +437,11 @@ or /a/…/f.el."
 (defun ivy-rich-bookmark-handler-props (candidate)
   (let ((handler (ivy-rich-bookmark-value candidate 'handler)))
     (unless (null handler)
-      (list (car (split-string (symbol-name handler) "-")) 'Info-quoted))))
+      (list (upcase (car (remove-if (lambda (x)
+                                      (or (string= "bookmark" x)
+                                          (string= "jump" x)))
+                                    (split-string (symbol-name handler) "-"))))
+            'font-lock-keyword-face))))
 
 (defun ivy-rich-bookmark-propertize-type (string face)
   (propertize (format "%-8.8s" string) 'face face))
