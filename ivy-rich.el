@@ -446,12 +446,12 @@ or /a/…/f.el."
   (let ((filename (ivy-rich-bookmark-filename candidate)))
     (apply #'ivy-rich-bookmark-propertize-type
 	   (cond ((null filename) (or (ivy-rich-bookmark-handler-props candidate)
-				      '("NOFILE" 'warning)))
-		 ((file-remote-p filename) '("REMOTE" 'mode-line-buffer-id))
+				      '("NOFILE" warning)))
+		 ((file-remote-p filename) '("REMOTE" mode-line-buffer-id))
 		 ((not (file-exists-p filename)) (or (ivy-rich-bookmark-handler-props candidate)
-						     '("NOTFOUND" 'error)))
-		 ((file-directory-p filename) '("DIRED" 'warning))
-		 (t '("FILE" 'success))))))
+						     '("NOTFOUND" error)))
+		 ((file-directory-p filename) '("DIRED" warning))
+		 (t '("FILE" success))))))
 
 (defun ivy-rich-bookmark-info (candidate)
   (let ((filename (ivy-rich-bookmark-filename candidate)))
