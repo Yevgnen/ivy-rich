@@ -467,7 +467,9 @@ or /a/…/f.el."
                   "")
                  ((file-remote-p filename)
                   candidate)
-                 (t (file-truename filename)))))))
+                 ((file-exists-p filename)
+                  (file-truename filename))
+                 (t filename))))))
 
 ;; Supports for `counsel-projectile'
 ;; Possible setup:
