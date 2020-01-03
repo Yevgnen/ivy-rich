@@ -349,31 +349,15 @@ or /a/…/f.el."
     (or (ivy-rich-switch-buffer-root candidate) ""))))
 
 (defun ivy-rich--switch-buffer-root-and-filename (candidate)
-  (let* ((buffer (get-buffer candidate))
-         (truenamep t))
-    (cl-destructuring-bind
-        (filename directory mode)
-        (ivy-rich--local-values buffer '(buffer-file-name default-directory major-mode))
-      ;; Only make sense when `filename' and `root' are both not `nil'
-      (when (and filename
-                 directory
-                 (if (file-remote-p filename) ivy-rich-parse-remote-buffer t)
-                 (not (eq mode 'dired-mode))
-                 (ivy-rich-switch-buffer-in-project-p candidate))
-        ;; Find the project root directory or `default-directory'
-        (setq directory (cond ((bound-and-true-p projectile-mode)
-                               (or (ivy-rich--local-values buffer 'projectile-project-root)
-                                   (with-current-buffer buffer
-                                     (projectile-project-root))))
-                              ((require 'project nil t)
-                               (with-current-buffer buffer
-                                 (setq truenamep nil)
-                                 (car (project-roots (project-current)))))))
-        (if truenamep
-            (setq filename (or (ivy-rich--local-values buffer 'buffer-file-truename)
-                               (file-truename filename))))
-        (cons (expand-file-name directory)
-              (expand-file-name filename))))))
+  (when-let ((root (ivy-rich-switch-buffer-root candidate))
+             (dir (ivy-rich--switch-buffer-directory candidate)))
+    (when (bound-and-true-p projectile-mode)
+      (setq dir (or (file-name-directory
+                     (or (ivy-rich--local-values
+                          candidate 'buffer-file-truename)
+                         ""))
+                    (file-truename dir))))
+    (cons (expand-file-name root) (expand-file-name dir))))
 
 (defun ivy-rich-switch-buffer-path (candidate)
   (if-let ((result (ivy-rich--switch-buffer-root-and-filename candidate)))
