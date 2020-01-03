@@ -322,27 +322,31 @@ or /a/…/f.el."
      ""
      (symbol-name (ivy-rich--local-values candidate 'major-mode))))))
 
-(defun ivy-rich-switch-buffer-in-project-p (candidate)
-  (with-current-buffer
-      (get-buffer candidate)
-    (unless (or (and (file-remote-p (or (buffer-file-name) default-directory))
+(defun ivy-rich--switch-buffer-directory (candidate)
+  (or (ivy-rich--local-values candidate 'default-directory)
+      (ivy-rich--local-values candidate 'list-buffers-directory)))
+
+(defun ivy-rich-switch-buffer-root (candidate)
+  (let* ((dir (ivy-rich--switch-buffer-directory candidate)))
+    (unless (or (and (file-remote-p dir)
                      (not ivy-rich-parse-remote-buffer))
                 ;; Workaround for `browse-url-emacs' buffers , it changes
                 ;; `default-directory' to "http://" (#25)
-                (string-match "https?:\\/\\/" default-directory))
+                (string-match "https?:\\/\\/" dir))
       (cond ((bound-and-true-p projectile-mode)
-             (let ((project (projectile-project-name)))
+             (let ((project (or (ivy-rich--local-values
+                                 candidate 'projectile-project-root)
+                                (projectile-project-root dir))))
                (unless (string= project "-")
                  project)))
             ((require 'project nil t)
-             (let ((project (project-current)))
-               (when project
-                 (file-name-nondirectory
-                  (directory-file-name
-                   (car (project-roots project)))))))))))
+             (when-let ((project (project-current nil dir)))
+               (car (project-roots project))))))))
 
 (defun ivy-rich-switch-buffer-project (candidate)
-  (or (ivy-rich-switch-buffer-in-project-p candidate) ""))
+  (file-name-nondirectory
+   (directory-file-name
+    (or (ivy-rich-switch-buffer-root candidate) ""))))
 
 (defun ivy-rich--switch-buffer-root-and-filename (candidate)
   (let* ((buffer (get-buffer candidate))
