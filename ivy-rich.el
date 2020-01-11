@@ -285,8 +285,8 @@ or /a/…/f.el."
   (let* ((buffer (get-buffer candidate))
          (process-p (get-buffer-process buffer)))
     (cl-destructuring-bind
-        (mode filename directory read-only)
-        (ivy-rich--local-values candidate '(major-mode buffer-file-name default-directory buffer-read-only))
+        (filename directory read-only)
+        (ivy-rich--local-values candidate '(buffer-file-name default-directory buffer-read-only))
       (let ((modified (if (and (buffer-modified-p buffer)
                                (null process-p)
                                (ivy-rich-switch-buffer-user-buffer-p candidate))
