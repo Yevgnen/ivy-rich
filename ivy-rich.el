@@ -395,7 +395,7 @@ or /a/…/f.el."
 ;; Supports for `counsel-M-x', `counsel-describe-function', `counsel-describe-variable'
 (defun ivy-rich-counsel-function-docstring (candidate)
   (let ((doc (replace-regexp-in-string
-              ":\\(\\(before\\|after\\)\\(-\\(whilte\\|until\\)\\)?\\|around\\|override\\|\\(filter-\\(args\\|return\\)\\)\\) advice:[ ]*‘.+?’[\r\n]+"
+              ":\\(\\(before\\|after\\)\\(-\\(while\\|until\\)\\)?\\|around\\|override\\|\\(filter-\\(args\\|return\\)\\)\\) advice:[ ]*‘.+?’[\r\n]+"
               ""
               (or (ignore-errors (documentation (intern-soft candidate))) ""))))
     (if (string-match "^\\(.+\\)\\([\r\n]\\)?" doc)
