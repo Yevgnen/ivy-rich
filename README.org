@@ -242,3 +242,5 @@ So you can not search the description of ~counsel-describe-function~ neither.
 - [[https://github.com/casouri/ivy-filthy-rich][ivy-filthy-rich.el]] by @casouri
 
 - [[https://github.com/asok/all-the-icons-ivy][all-the-icons-ivy]] by @asok
+
+- [[https://github.com/seagle0128/all-the-icons-ivy-rich][all-the-icons-ivy-rich]] by @seagle0128
