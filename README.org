@@ -54,7 +54,7 @@ It is recommended to set also
 :END:
 
 The transformer format for each ~ivy~ command is defined in ~plist~
-~ivy-rich--display-transformers-list~, which has a default value
+~ivy-rich-display-transformers-list~, which has a default value
 
 #+begin_src elisp
 '(ivy-switch-buffer
@@ -98,7 +98,7 @@ The transformer format for each ~ivy~ command is defined in ~plist~
 *A transformer is just a string processing function with some format
 properties.* Each plist key is a ~ivy~ command and plist value is its
 transformer format definitions or a pre-defined transformer. Refer to
-the documentation of ~ivy-rich--display-transformers-list~ for details.
+the documentation of ~ivy-rich-display-transformers-list~ for details.
 
 *** Example
 
@@ -132,10 +132,10 @@ easily in emacs. For example, you can define a transformer
         icon))))
 #+end_src
 
-and add it to the ~ivy-rich--display-transformers-List~
+and add it to the ~ivy-rich-display-transformers-list~
 
 #+begin_src elisp
-(setq ivy-rich--display-transformers-list
+(setq ivy-rich-display-transformers-list
       '(ivy-switch-buffer
         (:columns
          ((ivy-rich-switch-buffer-icon (:width 2))
@@ -155,7 +155,7 @@ You will get
 
 ** Notes
 
-1. If you modify ~ivy-rich--display-transformers-list~, you may need to
+1. If you modify ~ivy-rich-display-transformers-list~, you may need to
    disable and re-enable ~ivy-rich-mode~ again to make the changes take
    effect.
 
@@ -226,7 +226,7 @@ Since the version 0.1.0 of ~ivy-rich~, the transformer format can be
 customized. Variables from older version like
 ~ivy-rich-switch-buffer-mode-max-length~ or
 ~ivy-rich-switch-buffer-project-max-length~ has been deprecated since they
-are now packed into ~ivy-rich--display-transformers-list~ as stated in the
+are now packed into ~ivy-rich-display-transformers-list~ as stated in the
 [[#h:6A171A3A-50DF-42F6-B19B-321B160F198E][customization section]].
 
 Supports for virtual buffers and shorten file paths in ~ivy-switch-buffer~

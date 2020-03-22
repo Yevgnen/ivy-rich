@@ -146,11 +146,6 @@ without duplicating definitions.
 
 Note that you may need to disable and enable the `ivy-rich-mode'
 again to make this variable take effect.")
-(define-obsolete-variable-alias
-  'ivy-rich--display-transformers-list
-  'ivy-rich-display-transformers-list
-  "0.1.2"
-  "Used `ivy-rich-display-transformers-list' instead.")
 
 ;; Common Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defalias 'ivy-rich-candidate 'identity)
