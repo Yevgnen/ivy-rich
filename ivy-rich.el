@@ -127,16 +127,22 @@ to hold the project name."
 
 The definitions should be in the following plist format
 
-'(CMD1 (:columns (COLUMN-FN1 (KEY1 VALUE1 KEY2 VALUE2 ...))
-                 (COLUMN-FN2 (KEY1 VALUE1 KEY2 VALUE2 ...))
-        :predicate PREDICATE-FN)
-...
-CMDN (:columns (COLUMN-FN1 (KEY1 VALUE1 KEY2 VALUE2 ...)
-               (COLUMN-FN2 (KEY1 VALUE1 KEY2 VALUE2 ...)))
-      :predicate PREDICATE-FN))
+'(CMD-1 TRANSFORM-PROPS-1
+  ...
+  CMD-N TRANSFORM-PROPS-N)
+
+A transformer named `ivy-rich--CMD-transformer' is built for each
+command CMD.
 
 CMD should be an ivy command, which is typically a return value
 of `ivy-read'.
+
+TRANSFORM-PROPS are properties for defining transformer in plist
+format, i.e.
+
+(:columns (COLUMN-FN1 (KEY1 VALUE1 KEY2 VALUE2 ...))
+                  (COLUMN-FN2 (KEY1 VALUE1 KEY2 VALUE2 ...))
+        :predicate PREDICATE-FN)
 
 COLUMN-FN is a function which takes the completion candidate as
 single argument and it should return a transformed string. This
@@ -163,6 +169,23 @@ transformer. If not given, the default is a single space.
 If :predicate is provide, it should be a function which takes the
 completion candidate as single argument. A candidate with nil
 predication will not be transformed.
+
+It is possible to set TRANSFORM-PROPS to a pre-defined
+transformer, e.g.
+
+(...
+counsel-M-x
+(:columns
+ ((counsel-M-x-transformer (:width 40))
+  (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))
+
+execute-extended-command                ; reuse transformer built
+ivy-rich--counsel-M-x-transformer       ; for `counsel-M-x'
+...)
+
+`execute-extended-command' is set to used `counsel-M-x''s
+transformer. This is useful if one want to reuse transformers
+without duplicating definitions.
 
 Note that you may need to disable and enable the `ivy-rich-mode'
 again to make this variable take effect.")
@@ -519,15 +542,17 @@ or /a/…/f.el."
                    (plist-get ivy-rich--original-display-transformers-list cmd))))
 
 (defun ivy-rich-build-transformer (cmd transformer-props)
-  (defalias (intern (format "ivy-rich--%s-transformer" (symbol-name cmd)))
-    (lambda  (candidate)
-      (let ((columns (plist-get transformer-props :columns))
-            (predicate-fn (or (plist-get transformer-props :predicate) (lambda (x) t)))
-            (delimiter (or (plist-get transformer-props :delimiter) " ")))
-        (if (and predicate-fn
-                 (not (funcall predicate-fn candidate)))
-            candidate
-          (ivy-rich-format candidate columns delimiter))))))
+  (if (functionp transformer-props)
+      transformer-props
+    (defalias (intern (format "ivy-rich--%s-transformer" (symbol-name cmd)))
+      (lambda  (candidate)
+        (let ((columns (plist-get transformer-props :columns))
+              (predicate-fn (or (plist-get transformer-props :predicate) (lambda (x) t)))
+              (delimiter (or (plist-get transformer-props :delimiter) " ")))
+          (if (and predicate-fn
+                   (not (funcall predicate-fn candidate)))
+              candidate
+            (ivy-rich-format candidate columns delimiter)))))))
 
 (defun ivy-rich-set-display-transformer ()
   (cl-loop for (cmd transformer-props) on ivy-rich-display-transformers-list by 'cddr do
