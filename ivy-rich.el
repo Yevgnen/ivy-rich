@@ -4,7 +4,7 @@
 
 ;; Author: Yevgnen Koh <wherejoystarts@gmail.com>
 ;; Package-Requires: ((emacs "24.5") (ivy "0.8.0"))
-;; Version: 0.1.3
+;; Version: 0.1.6
 ;; Keywords: ivy
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -42,49 +42,6 @@
 (defgroup ivy-rich nil
   "More friendly interface (display transformer) for ivy."
   :group 'ivy)
-
-;;; ivy-switch-buffer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar obsolete-message "Please refer to the github page for latest (0.1.0) usage of ivy-rich. ")
-
-;; Obsolete variables and functions
-(defcustom ivy-rich-switch-buffer-name-max-length
-  32
-  "Max length of buffer name.
-
-For better user experience, the max length should be set to loose to
-hold the buffer name."
-  :type 'integer)
-(make-obsolete-variable 'ivy-rich-switch-buffer-name-max-length obsolete-message "0.1.0")
-
-(defcustom ivy-rich-switch-buffer-mode-max-length
-  18
-  "Max length of mode name.
-
-For better user experience, the max length should be set to loose to
-hold the mode name."
-  :type 'integer)
-(make-obsolete-variable 'ivy-rich-switch-buffer-mode-max-length obsolete-message "0.1.0")
-
-(defcustom ivy-rich-switch-buffer-project-max-length
-  15
-  "Max length of project name.
-
-For better user experience, the max length should be set to loose
-to hold the project name."
-  :type 'integer)
-(make-obsolete-variable 'ivy-rich-switch-buffer-project-max-length obsolete-message "0.1.0")
-
-(defcustom ivy-rich-switch-buffer-delimiter
-  ""
-  "Delimiter between columns."
-  :type 'string)
-(make-obsolete-variable 'ivy-rich-switch-buffer-delimiter obsolete-message "0.1.0")
-
-(defcustom ivy-rich-switch-buffer-align-virtual-buffer
-  nil
-  "Whether to align virtual buffers just as true buffers or not."
-  :type 'boolean)
-(make-obsolete-variable 'ivy-rich-switch-buffer-align-virtual-buffer obsolete-message "0.1.0")
 
 (defcustom ivy-rich-display-transformers-list
   '(ivy-switch-buffer
