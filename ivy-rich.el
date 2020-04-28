@@ -46,7 +46,7 @@
 (defcustom ivy-rich-display-transformers-list
   '(ivy-switch-buffer
     (:columns
-     ((ivy-rich-candidate (:width 30))
+     ((ivy-switch-buffer-transformer (:width 30))
       (ivy-rich-switch-buffer-size (:width 7))
       (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
       (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))

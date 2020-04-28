@@ -59,7 +59,7 @@ The transformer format for each ~ivy~ command is defined in ~plist~
 #+begin_src elisp
 '(ivy-switch-buffer
   (:columns
-   ((ivy-rich-candidate (:width 30))    ; return candidate itself
+   ((ivy-switch-buffer-transformer (:width 30))    ; add face by the original transformer
     (ivy-rich-switch-buffer-size (:width 7))  ; return buffer size
     (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))  ; return buffer indicator
     (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))            ; return major mode info
