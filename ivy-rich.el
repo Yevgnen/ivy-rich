@@ -485,11 +485,11 @@ or /a/…/f.el."
   (setq ivy-rich--original-display-transformers-list
         (plist-put ivy-rich--original-display-transformers-list
                    cmd
-                   (plist-get ivy--display-transformers-list cmd))))
+                   (plist-get ivy--display-transformers-alist cmd))))
 
 (defun ivy-rich-restore-transformer (cmd)
-  (setq ivy--display-transformers-list
-        (plist-put ivy--display-transformers-list
+  (setq ivy--display-transformers-alist
+        (plist-put ivy--display-transformers-alist
                    cmd
                    (plist-get ivy-rich--original-display-transformers-list cmd))))
 
