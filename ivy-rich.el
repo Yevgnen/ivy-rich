@@ -368,7 +368,7 @@ or /a/…/f.el."
 
 ;; Supports for `counsel-find-file'
 (defun ivy-rich-counsel-find-file-truename (candidate)
-  (let ((type (car (file-attributes (directory-file-name (expand-file-name candidate ivy--directory))))))
+  (let ((type (car (ignore-errors (file-attributes (directory-file-name (expand-file-name candidate ivy--directory)))))))
     (if (stringp type)
         (concat "-> " (expand-file-name type ivy--directory))
       "")))
