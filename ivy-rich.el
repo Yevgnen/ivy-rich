@@ -311,9 +311,9 @@ or /a/…/f.el."
         (if fn
             ;; return containing directory
             (directory-file-name fn)
-          ;; else if mode explicitly offering list-buffers-directory, return that; else nil
-          ;; (buffers that don't explicitly visit files, but would like to show something,
-          ;;  e.g. magit or dired, use this)
+          ;; else if mode explicitly offering list-buffers-directory, return that; else nil.
+          ;; buffers that don't explicitly visit files, but would like to show a filename,
+          ;; e.g. magit or dired, set the list-buffers-directory variable
           (buffer-local-value 'list-buffers-directory buffer))))
 
 (defun ivy-rich-switch-buffer-root (candidate)
