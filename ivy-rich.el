@@ -304,11 +304,20 @@ or /a/…/f.el."
      (symbol-name (ivy-rich--local-values candidate 'major-mode))))))
 
 (defun ivy-rich--switch-buffer-directory (candidate)
-  (or (ivy-rich--local-values candidate 'default-directory)
-      (ivy-rich--local-values candidate 'list-buffers-directory)))
+      "Return directory of file visited by buffer named CANDIDATE, or nil if no file."
+      (let* ((buffer (get-buffer candidate))
+             (fn (buffer-file-name buffer)))
+        ;; if valid filename, i.e. buffer visiting file:
+        (if fn
+            ;; return containing directory
+            (directory-file-name fn)
+          ;; else if mode explicitly offering list-buffers-directory, return that; else nil.
+          ;; buffers that don't explicitly visit files, but would like to show a filename,
+          ;; e.g. magit or dired, set the list-buffers-directory variable
+          (buffer-local-value 'list-buffers-directory buffer))))
 
 (defun ivy-rich-switch-buffer-root (candidate)
-  (let* ((dir (ivy-rich--switch-buffer-directory candidate)))
+  (when-let* ((dir (ivy-rich--switch-buffer-directory candidate)))
     (unless (or (and (file-remote-p dir)
                      (not ivy-rich-parse-remote-buffer))
                 ;; Workaround for `browse-url-emacs' buffers , it changes
