@@ -1,6 +1,6 @@
 #+options: ':nil *:t -:t ::t <:t H:5 \n:nil ^:{} arch:headline author:t
 #+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
-#+options: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t tags:t
+#+options: email:nil f:t inline:t num:nil p:nil pri:nil prop:nil stat:t tags:t
 #+options: tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
 #+title: README
 #+date: <2020-03-22 Sun>
@@ -24,7 +24,8 @@
 #+creator: <a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.1.1 (<a href="http://orgmode.org">Org</a> mode 9.0.1)
 #+latex_header:
 
-* Table of Contents :TOC:
+* Table of Contents :TOC:QUOTE:
+#+begin_quote
 - [[#more-friendly-interface-for-ivy][More friendly interface for ivy]]
   - [[#installation][Installation]]
   - [[#basic-usages][Basic Usages]]
@@ -40,6 +41,7 @@
 - [[#important-changes][Important Changes]]
 - [[#faq][FAQ]]
 - [[#related-packages][Related Packages]]
+#+end_quote
 
 * More friendly interface for ivy
 
