@@ -24,6 +24,23 @@
 #+creator: <a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.1.1 (<a href="http://orgmode.org">Org</a> mode 9.0.1)
 #+latex_header:
 
+* Table of Contents :TOC:
+- [[#more-friendly-interface-for-ivy][More friendly interface for ivy]]
+  - [[#installation][Installation]]
+  - [[#basic-usages][Basic Usages]]
+  - [[#customization][Customization]]
+  - [[#notes][Notes]]
+- [[#screenshots-and-details][Screenshots and details]]
+  - [[#ivy-switch-buffer][~ivy-switch-buffer~]]
+  - [[#counsel-m-x][~counsel-M-x~]]
+  - [[#counsel-describe-variable][~counsel-describe-variable~]]
+  - [[#counsel-recentf][~counsel-recentf~]]
+  - [[#counsel-bookmark][~counsel-bookmark~]]
+  - [[#package-install][~package-install~]]
+- [[#important-changes][Important Changes]]
+- [[#faq][FAQ]]
+- [[#related-packages][Related Packages]]
+
 * More friendly interface for ivy
 
 The package current comes with support for ~ivy-switch-buffer~,
