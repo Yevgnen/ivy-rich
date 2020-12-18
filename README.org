@@ -119,6 +119,36 @@ properties.* Each plist key is a ~ivy~ command and plist value is its
 transformer format definitions or a pre-defined transformer. Refer to
 the documentation of ~ivy-rich-display-transformers-list~ for details.
 
+Convenience functions exist for customizing column properties without
+rewriting the entire transformer definition. Below are two examples with
+`use-package` that use the default transformers, but with user-defined
+customizations.
+
+This example customizes the `:width` and `:face` properties of the major
+mode column in the `ivy-switch-buffer` transformer:
+
+#+begin_src elisp
+(use-package ivy-rich
+  :config
+  (ivy-rich-modify-column 'ivy-switch-buffer
+                          'ivy-rich-switch-buffer-major-mode
+                          '(:width 20 :face error)))
+#+end_src
+
+This example customizes properties of two columns of the `ivy-switch-buffer`
+transformer and shows some other configuration options via `use-package`:
+
+#+begin_src elisp
+(use-package ivy-rich
+  :hook (ivy-mode . ivy-rich-mode)
+  :custom (ivy-rich-path-style 'abbrev)
+  :config
+  (ivy-rich-modify-columns
+   'ivy-switch-buffer
+   '((ivy-rich-switch-buffer-size (:align right))
+     (ivy-rich-switch-buffer-major-mode (:width 20 :face error)))))
+#+end_src
+
 *** Example
 
 **** ~counsel-M-x~

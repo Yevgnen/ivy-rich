@@ -156,6 +156,47 @@ without duplicating definitions.
 Note that you may need to disable and enable the `ivy-rich-mode'
 again to make this variable take effect.")
 
+;;; User convenience functions
+;; Helper functions for user profile configuration
+
+(defun ivy-rich-modify-column (cmd column attrs)
+  "Customize the CMD transformer's properties for a specific COLUMN.
+Each key-value pair in ATTRS is put into the property list for the column.
+Existing properties for the column are left unchanged.
+
+Usage:
+
+(ivy-rich-modify-column 'ivy-switch-buffer
+                        'ivy-rich-switch-buffer-major-mode
+                        '(:width 20 :face error))"
+  (if (evenp (length attrs))
+      (let* ((trans (plist-get ivy-rich-display-transformers-list cmd))
+             (props (cadr (assoc column (plist-get trans :columns)))))
+        (while attrs
+          (plist-put props (pop attrs) (pop attrs))))
+    (error "Column key-value attributes must be in pairs")))
+
+(defun ivy-rich-modify-columns (cmd column-list)
+  "Customize the CMD transformer's properties for a COLUMN-LIST.
+This is a convenience function that calls `ivy-rich-modify-column' for each item
+in COLUMN-LIST, allowing multiple columns to be modified for a transformer.
+Each item in COLUMN-LIST is a two-item list comprised of a column and list
+of attribute key-value pairs.
+
+Usage:
+
+(ivy-rich-modify-columns
+ 'ivy-switch-buffer
+ '((ivy-rich-switch-buffer-size (:align right))
+   (ivy-rich-switch-buffer-major-mode (:width 20 :face error))))"
+  (while column-list
+    (if-let ((column (caar column-list))
+             (attrs (cadar column-list)))
+        (prog1
+            (ivy-rich-modify-column cmd column attrs)
+          (setq column-list (cdr column-list)))
+      (error "Column/attributes are incorrectly specified"))))
+
 ;; Common Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defalias 'ivy-rich-candidate 'identity)
 
