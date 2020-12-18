@@ -121,11 +121,11 @@ the documentation of ~ivy-rich-display-transformers-list~ for details.
 
 Convenience functions exist for customizing column properties without
 rewriting the entire transformer definition. Below are two examples with
-`use-package` that use the default transformers, but with user-defined
+~use-package~ that use the default transformers, but with user-defined
 customizations.
 
-This example customizes the `:width` and `:face` properties of the major
-mode column in the `ivy-switch-buffer` transformer:
+This example customizes the ~:width~ and ~:face~ properties of the major
+mode column in the ~ivy-switch-buffer~ transformer:
 
 #+begin_src elisp
 (use-package ivy-rich
@@ -135,8 +135,8 @@ mode column in the `ivy-switch-buffer` transformer:
                           '(:width 20 :face error)))
 #+end_src
 
-This example customizes properties of two columns of the `ivy-switch-buffer`
-transformer and shows some other configuration options via `use-package`:
+This example customizes properties of two columns of the ~ivy-switch-buffer~
+transformer and shows some other configuration options via ~use-package~:
 
 #+begin_src elisp
 (use-package ivy-rich
