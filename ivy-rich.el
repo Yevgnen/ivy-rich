@@ -360,9 +360,25 @@ or /a/…/f.el."
           ;; e.g. magit or dired, set the list-buffers-directory variable
           (buffer-local-value 'list-buffers-directory buffer))))
 
-(defun ivy-rich-switch-buffer-root (candidate)
-  (when-let* ((dir (ivy-rich--switch-buffer-directory candidate)))
-    (unless (or (and (file-remote-p dir)
+(defvar ivy-rich-project-root-cache
+  (make-hash-table :test 'equal)
+  "Hash-table caching each file's project for
+`ivy-rich-switch-buffer-root'.
+
+The cache can is enabled when `ivy-rich-project-root-cache-mode'
+is enabled and cleared when the mode is disabled. Additionally,
+buffers are removed from the cached when killd.
+
+The cache can be cleared manually by calling
+`ivy-rich-clear-project-root-cache'.")
+
+(defun ivy-rich-clear-project-root-cache ()
+  "Resets `ivy-rich-project-root-cache'."
+  (interactive)
+  (clrhash ivy-rich-project-root-cache))
+
+(defun ivy-rich-switch-buffer-root-lookup (candidate dir)
+  (unless (or (and (file-remote-p dir)
                      (not ivy-rich-parse-remote-buffer))
                 ;; Workaround for `browse-url-emacs' buffers , it changes
                 ;; `default-directory' to "http://" (#25)
@@ -378,7 +394,25 @@ or /a/…/f.el."
                (ffip-project-root)))
             ((require 'project nil t)
              (when-let ((project (project-current nil dir)))
-               (car (project-roots project))))))))
+               (car (project-roots project)))))))
+
+(defun ivy-rich-switch-buffer-root (candidate)
+  (when-let* ((dir (ivy-rich--switch-buffer-directory candidate)))
+    (let ((cached-value (if ivy-rich-project-root-cache-mode
+                            (gethash dir ivy-rich-project-root-cache 'not-found)
+                          'not-found)))
+      (if (not (eq cached-value 'not-found)) cached-value
+        (let ((value (ivy-rich-switch-buffer-root-lookup candidate dir)))
+          (when ivy-rich-project-root-cache-mode
+            (puthash dir value ivy-rich-project-root-cache))
+          value)))))
+
+(defun ivy-rich-project-root-cache-kill-buffer-hook ()
+  "This hook is used to remove buffer from
+`ivy-rich-project-root-cache' when they are killed."
+  (remhash (ivy-rich--switch-buffer-directory
+            (buffer-name (current-buffer)))
+           ivy-rich-project-root-cache))
 
 (defun ivy-rich-switch-buffer-project (candidate)
   (file-name-nondirectory
@@ -583,6 +617,13 @@ or /a/…/f.el."
            (ivy-rich-restore-transformer cmd))
   (setq ivy-rich--original-display-transformers-list nil))
 
+(defun ivy-rich-setup-project-root-cache-mode ()
+  (add-hook 'kill-buffer-hook 'ivy-rich-project-root-cache-kill-buffer-hook))
+
+(defun ivy-rich-cleanup-project-root-cache-mode ()
+  (ivy-rich-clear-project-root-cache)
+  (remove-hook 'kill-buffer-hook 'ivy-rich-project-root-cache-kill-buffer-hook))
+
 ;;;###autoload
 (define-minor-mode ivy-rich-mode
   "Toggle ivy-rich mode globally."
@@ -597,6 +638,14 @@ or /a/…/f.el."
   (when ivy-rich-mode
     (ivy-rich-mode -1)
     (ivy-rich-mode 1)))
+
+;;;###autoload
+(define-minor-mode ivy-rich-project-root-cache-mode
+  "Toggle ivy-rich-root-cache-mode globally."
+  :global t
+  (if ivy-rich-project-root-cache-mode
+      (ivy-rich-setup-project-root-cache-mode)
+    (ivy-rich-cleanup-project-root-cache-mode)))
 
 (provide 'ivy-rich)
 
