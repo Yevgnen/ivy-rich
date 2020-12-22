@@ -204,18 +204,18 @@ Usage:
   (or (null str)
       (string-empty-p (string-trim str))))
 
-(defun ivy-rich-normalize-width (str len &optional left)
+(defun ivy-rich-normalize-width (str len &optional right-aligned)
   "Normalize the width of a string.
 
-If the length of STR is smaller than LEN, the string is padded
-using spaces from right if LEFT is nil or from left if left is
-not nil.
+If the length of STR is smaller than LEN, the string is padded to
+right aligned if RIGHT-ALIGNED is not nil and is padded to left
+otherwise.
 
 If the lenght of STR is larger that LEN, the string is truncated
 using …."
   (let ((str-len (string-width str)))
     (cond ((< str-len len)
-           (if left
+           (if right-aligned
                (concat (make-string (- len str-len) ? ) str)
              (concat str (make-string (- len str-len) ? ))))
           ((<= len (- str-len)) "")
