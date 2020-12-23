@@ -360,7 +360,7 @@ or /a/…/f.el."
           ;; e.g. magit or dired, set the list-buffers-directory variable
           (buffer-local-value 'list-buffers-directory buffer))))
 
-(defvar ivy-rich-project-root-cache
+(defvar ivy-rich--project-root-cache
   (make-hash-table :test 'equal)
   "Hash-table caching each file's project for
 `ivy-rich-switch-buffer-root'.
@@ -373,9 +373,9 @@ The cache can be cleared manually by calling
 `ivy-rich-clear-project-root-cache'.")
 
 (defun ivy-rich-clear-project-root-cache ()
-  "Resets `ivy-rich-project-root-cache'."
+  "Resets `ivy-rich--project-root-cache'."
   (interactive)
-  (clrhash ivy-rich-project-root-cache))
+  (clrhash ivy-rich--project-root-cache))
 
 (defun ivy-rich-switch-buffer-root-lookup (candidate dir)
   (unless (or (and (file-remote-p dir)
@@ -399,20 +399,21 @@ The cache can be cleared manually by calling
 (defun ivy-rich-switch-buffer-root (candidate)
   (when-let* ((dir (ivy-rich--switch-buffer-directory candidate)))
     (let ((cached-value (if ivy-rich-project-root-cache-mode
-                            (gethash dir ivy-rich-project-root-cache 'not-found)
+                            (gethash dir ivy-rich--project-root-cache 'not-found)
                           'not-found)))
-      (if (not (eq cached-value 'not-found)) cached-value
+      (if (not (eq cached-value 'not-found))
+          cached-value
         (let ((value (ivy-rich-switch-buffer-root-lookup candidate dir)))
           (when ivy-rich-project-root-cache-mode
-            (puthash dir value ivy-rich-project-root-cache))
+            (puthash dir value ivy-rich--project-root-cache))
           value)))))
 
 (defun ivy-rich-project-root-cache-kill-buffer-hook ()
   "This hook is used to remove buffer from
-`ivy-rich-project-root-cache' when they are killed."
+`ivy-rich--project-root-cache' when they are killed."
   (remhash (ivy-rich--switch-buffer-directory
             (buffer-name (current-buffer)))
-           ivy-rich-project-root-cache))
+           ivy-rich--project-root-cache))
 
 (defun ivy-rich-switch-buffer-project (candidate)
   (file-name-nondirectory
