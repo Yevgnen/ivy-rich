@@ -31,6 +31,7 @@
   - [[#basic-usages][Basic Usages]]
   - [[#customization][Customization]]
   - [[#notes][Notes]]
+  - [[#ivy-switch-buffer-project-performance][~ivy-switch-buffer~ Project Performance]]
 - [[#screenshots-and-details][Screenshots and details]]
   - [[#ivy-switch-buffer][~ivy-switch-buffer~]]
   - [[#counsel-m-x][~counsel-M-x~]]
@@ -222,6 +223,16 @@ You will get
    package. But if you set the transformer to ~some-function~ before
    enabling ~ivy-rich-mode~, disabling the minor mode will restore it to
    ~some-function~ other than ~ivy-switch-buffer-transformer~.
+
+** ~ivy-switch-buffer~ Project Performance
+
+When having many open buffers, calling and navigating ~ivy-switch-buffers~
+might become slow when you have project-related columns. If that's the
+case, you can enable ~ivy-rich-project-root-cache-mode~, to cache each
+buffers project. The project for a buffer is cached until the buffer is
+killed, ~ivy-rich-project-root-cache-mode~ is disabled or
+~ivy-rich-clear-project-root-cache~ is called.
+
 
 * Screenshots and details
 :PROPERTIES:
