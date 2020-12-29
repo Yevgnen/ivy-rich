@@ -74,7 +74,7 @@ To abbreviate paths using ~abbreviate-file-name~ (e.g. replace "/home/username" 
 (setq ivy-rich-path-style 'abbrev)
 #+end_src
 
-To always show absolute path, set it to ~'full~ or ~'absolute~. Any other value will show the file path relative to the project root or =default-Directory=.
+To always show absolute path, set it to ~full~ or ~absolute~. Any other value will show the file path relative to the project root or =default-Directory=.
 
 Note that this may not affect remote files. There are two variables ~ivy-rich-parse-remote-buffer~ and ~ivy-rich-parse-remote-file-path~ controls how remote buffers are processed, please refer to the docstring of them for more details if you have trouble using this function under ~tramp~.
 
