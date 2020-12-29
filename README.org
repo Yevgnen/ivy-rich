@@ -9,7 +9,7 @@ Screenshots are available [[file:screenshots.org][here]].
 
 ** Installation
 
-~package-install RET ivy-rich RET~
+~M-x package-install RET ivy-rich RET~
 
 ** Basic Usages
 
@@ -100,45 +100,45 @@ Supports for virtual buffers and shorten file paths in ~ivy-switch-buffer~ are t
 
 ** Can I search buffers by ~major-mode~, ~project~ in ~ivy-switch-buffer~?
 
-  No, as far as I know, you can not right now. ~ivy-rich~ provides just transformers to display the original ~ivy~ candidates in a different way. It does not modify the original candidates. At least for now I have no idea how to add feature to search in the transformer columns. It probably requires some change in ~ivy~.
+No, as far as I know, you can not right now. ~ivy-rich~ provides just transformers to display the original ~ivy~ candidates in a different way. It does not modify the original candidates. At least for now I have no idea how to add feature to search in the transformer columns. It probably requires some change in ~ivy~.
 
-  So you can not search the description of ~counsel-describe-function~ neither.
+So you can not search the description of ~counsel-describe-function~ neither.
 
 ** How I can add icons for ~ivy-switch-buffer~?
 :PROPERTIES:
 :ID:       20201229-how-i-can-add-icons-for-ivy-switch-buffer
 :END:
 
-  The package [[https://github.com/domtronn/all-the-icons.el][all-the-icons.el]] provides functionality to use icon fonts easily in emacs. For example, you can define a transformer
+The package [[https://github.com/domtronn/all-the-icons.el][all-the-icons.el]] provides functionality to use icon fonts easily in emacs. For example, you can define a transformer
 
-  #+begin_src elisp
-  (defun ivy-rich-switch-buffer-icon (candidate)
-    (with-current-buffer
-        (get-buffer candidate)
-      (let ((icon (all-the-icons-icon-for-mode major-mode)))
-        (if (symbolp icon)
-            (all-the-icons-icon-for-mode 'fundamental-mode)
-          icon))))
-  #+end_src
+#+begin_src elisp
+(defun ivy-rich-switch-buffer-icon (candidate)
+  (with-current-buffer
+      (get-buffer candidate)
+    (let ((icon (all-the-icons-icon-for-mode major-mode)))
+      (if (symbolp icon)
+          (all-the-icons-icon-for-mode 'fundamental-mode)
+        icon))))
+#+end_src
 
-  and add it to the plist value of ~ivy-switch-buffer~ in ~ivy-rich-display-transformers-list~
+and add it to the plist value of ~ivy-switch-buffer~ in ~ivy-rich-display-transformers-list~
 
-  #+begin_src elisp
-  (setq ivy-rich-display-transformers-list
-        '(ivy-switch-buffer
-          (:columns
-           ((ivy-rich-switch-buffer-icon (:width 2))
-            (ivy-rich-candidate (:width 30))
-            (ivy-rich-switch-buffer-size (:width 7))
-            (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-            (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
-            (ivy-rich-switch-buffer-project (:width 15 :face success))
-            (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
-           :predicate
-           (lambda (cand) (get-buffer cand)))))
-  #+end_src
+#+begin_src elisp
+(setq ivy-rich-display-transformers-list
+      '(ivy-switch-buffer
+        (:columns
+         ((ivy-rich-switch-buffer-icon (:width 2))
+          (ivy-rich-candidate (:width 30))
+          (ivy-rich-switch-buffer-size (:width 7))
+          (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+          (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+          (ivy-rich-switch-buffer-project (:width 15 :face success))
+          (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+         :predicate
+         (lambda (cand) (get-buffer cand)))))
+#+end_src
 
-  See also [[https://github.com/seagle0128/all-the-icons-ivy-rich][all-the-icons-ivy-rich]].
+See also [[https://github.com/seagle0128/all-the-icons-ivy-rich][all-the-icons-ivy-rich]].
 
 * Related Packages
 
