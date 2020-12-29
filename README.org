@@ -1,55 +1,11 @@
-#+options: ':nil *:t -:t ::t <:t H:5 \n:nil ^:{} arch:headline author:t
-#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
-#+options: email:nil f:t inline:t num:nil p:nil pri:nil prop:nil stat:t tags:t
-#+options: tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
 #+title: README
 #+date: <2020-03-22 Sun>
-#+language: en
-#+select_tags: export
-#+exclude_tags: noexport
-#+creator: Emacs 25.1.1 (Org mode 9.0.1)
-#+options: html-link-use-abs-url:nil html-postamble:auto html-preamble:t
-#+options: html-scripts:t html-style:t html5-fancy:nil tex:t
-#+html_doctype: xhtml-strict
-#+html_container: div
-#+description:
-#+keywords:
-#+html_link_home:
-#+html_link_up:
-#+html_mathjax:
-#+html_head:
-#+html_head_extra:
-#+subtitle:
-#+infojs_opt:
-#+creator: <a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.1.1 (<a href="http://orgmode.org">Org</a> mode 9.0.1)
-#+latex_header:
-
-* Table of Contents :TOC:QUOTE:
-#+begin_quote
-- [[#more-friendly-interface-for-ivy][More friendly interface for ivy]]
-  - [[#installation][Installation]]
-  - [[#basic-usages][Basic Usages]]
-  - [[#customization][Customization]]
-  - [[#notes][Notes]]
-  - [[#ivy-switch-buffer-project-performance][~ivy-switch-buffer~ Project Performance]]
-- [[#screenshots-and-details][Screenshots and details]]
-  - [[#ivy-switch-buffer][~ivy-switch-buffer~]]
-  - [[#counsel-m-x][~counsel-M-x~]]
-  - [[#counsel-describe-variable][~counsel-describe-variable~]]
-  - [[#counsel-recentf][~counsel-recentf~]]
-  - [[#counsel-bookmark][~counsel-bookmark~]]
-  - [[#package-install][~package-install~]]
-- [[#important-changes][Important Changes]]
-- [[#faq][FAQ]]
-- [[#related-packages][Related Packages]]
-#+end_quote
 
 * More friendly interface for ivy
 
-The package current comes with support for ~ivy-switch-buffer~,
-~counsel-M-x~, ~counsel-describe-function~ and ~counsel-describe-variable~,
-but it should be easy enough to define your own
-transformers. Screenshots are available [[#h:A3BD2C78-CADB-4D4A-AB42-1D8ECD8AB2AD][here]].
+This package comes with rich transformers for commands from ~ivy~ and ~counsel~. It should be easy enough to define your own transformers too.
+
+Screenshots are available [[file:screenshots.org][here]].
 
 ** Installation
 
@@ -73,60 +29,20 @@ It is recommended to set also
 :CUSTOM_ID: h:6A171A3A-50DF-42F6-B19B-321B160F198E
 :END:
 
-The transformer format for each ~ivy~ command is defined in ~plist~
-~ivy-rich-display-transformers-list~, which has a default value
+*A transformer is just a string processing function with some format properties.* The transformer format for each ~ivy~ command is defined in the [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html#Property-Lists][plist]] ~ivy-rich-display-transformers-list~. Each plist key is a ~ivy~ command and plist value is its transformer format definitions or a pre-defined transformer. Refer to the documentation of ~ivy-rich-display-transformers-list~ for details.
 
-#+begin_src elisp
-'(ivy-switch-buffer
-  (:columns
-   ((ivy-switch-buffer-transformer (:width 30))    ; add face by the original transformer
-    (ivy-rich-switch-buffer-size (:width 7))  ; return buffer size
-    (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))  ; return buffer indicator
-    (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))            ; return major mode info
-    (ivy-rich-switch-buffer-project (:width 15 :face success))               ; return project name `projectile'
-    (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))  ; return file path relative to project root or `default-directory' if project is nil
-   :predicate
-   (lambda (cand) (get-buffer cand)))
-  counsel-find-file
-  (:columns
-   ((ivy-read-file-transformer)
-    (ivy-rich-counsel-find-file-truename (:face font-lock-doc-face))))
-  counsel-M-x
-  (:columns
-   ((counsel-M-x-transformer (:width 40))
-    (ivy-rich-counsel-function-docstring (:face font-lock-doc-face)))) ; return docstring of the command
-  counsel-describe-function
-  (:columns
-   ((counsel-describe-function-transformer (:width 40))
-    (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))  ; return docstring of the function
-  counsel-describe-variable
-  (:columns
-   ((counsel-describe-variable-transformer (:width 40))
-    (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face))))  ; return docstring of the variable
-  counsel-recentf
-  (:columns
-   ((ivy-rich-candidate (:width 0.8))
-    (ivy-rich-file-last-modified-time (:face font-lock-comment-face))))  ; return last modified time of the file
-  package-install
-  (:columns
-   ((ivy-rich-candidate (:width 30))
-    (ivy-rich-package-version (:width 16 :face font-lock-comment-face))  ; return package version
-    (ivy-rich-package-archive-summary (:width 7 :face font-lock-builtin-face))  ; return archive summary
-    (ivy-rich-package-install-summary (:face font-lock-doc-face)))))  ; return package description
-#+end_src
+You can also define your own transformers, see [[id:20201229-how-i-can-add-icons-for-ivy-switch-buffer][this]] for an example.
 
-*A transformer is just a string processing function with some format
-properties.* Each plist key is a ~ivy~ command and plist value is its
-transformer format definitions or a pre-defined transformer. Refer to
-the documentation of ~ivy-rich-display-transformers-list~ for details.
+** Convenience functions
 
-Convenience functions exist for customizing column properties without
-rewriting the entire transformer definition. Below are two examples with
-~use-package~ that use the default transformers, but with user-defined
-customizations.
+Convenience functions exist for customizing column properties without rewriting the entire transformer definition
 
-This example customizes the ~:width~ and ~:face~ properties of the major
-mode column in the ~ivy-switch-buffer~ transformer:
+- ~ivy-rich-modify-column~
+- ~ivy-rich-modify-columns~
+
+Below are two examples with ~use-package~ that use the default transformers, but with user-defined customizations.
+
+This example customizes the ~:width~ and ~:face~ properties of the major mode column in the ~ivy-switch-buffer~ transformer:
 
 #+begin_src elisp
 (use-package ivy-rich
@@ -136,8 +52,7 @@ mode column in the ~ivy-switch-buffer~ transformer:
                           '(:width 20 :face error)))
 #+end_src
 
-This example customizes properties of two columns of the ~ivy-switch-buffer~
-transformer and shows some other configuration options via ~use-package~:
+This example customizes properties of two columns of the ~ivy-switch-buffer~ transformer and shows some other configuration options via ~use-package~:
 
 #+begin_src elisp
 (use-package ivy-rich
@@ -150,160 +65,80 @@ transformer and shows some other configuration options via ~use-package~:
      (ivy-rich-switch-buffer-major-mode (:width 20 :face error)))))
 #+end_src
 
-*** Example
 
-**** ~counsel-M-x~
+** Additional settings for ~ivy-switch-buffer~
 
-For example, the transformer for ~counsel-M-x~
-
-#+begin_src elisp
-counsel-M-x
-(:columns
- ((counsel-M-x-transformer (:width 40))
-  (ivy-rich-counsel-function-docstring (:face font-lock-doc-face))))
-#+end_src
-
-it defines two columns. The first one is the original built-in
-transformer with max width of 40 chars and the second one transforms the
-string candidate into a docstring with face ~font-lock-doc-face~.
-
-**** Add icons for ~ivy-switch-buffer~
-
-The package [[https://github.com/domtronn/all-the-icons.el][all-the-icons.el]] provides functionality to use icon fonts
-easily in emacs. For example, you can define a transformer
-
-#+begin_src elisp
-(defun ivy-rich-switch-buffer-icon (candidate)
-  (with-current-buffer
-      (get-buffer candidate)
-    (let ((icon (all-the-icons-icon-for-mode major-mode)))
-      (if (symbolp icon)
-          (all-the-icons-icon-for-mode 'fundamental-mode)
-        icon))))
-#+end_src
-
-and add it to the ~ivy-rich-display-transformers-list~
-
-#+begin_src elisp
-(setq ivy-rich-display-transformers-list
-      '(ivy-switch-buffer
-        (:columns
-         ((ivy-rich-switch-buffer-icon (:width 2))
-          (ivy-rich-candidate (:width 30))
-          (ivy-rich-switch-buffer-size (:width 7))
-          (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-          (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
-          (ivy-rich-switch-buffer-project (:width 15 :face success))
-          (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
-         :predicate
-         (lambda (cand) (get-buffer cand)))))
-#+end_src
-
-You will get
-
-[[file:screenshots/all-the-icons.png]]
-
-** Notes
-
-1. If you modify ~ivy-rich-display-transformers-list~, you may need to
-   disable and re-enable ~ivy-rich-mode~ again to make the changes take
-   effect.
-
-2. If you define transformers for commands comes from neither ~ivy~ nor
-   ~counsel~, e.g. ~counsel-projectile-*~, it currently may not take effect
-   since if you enable ~ivy-rich-mode~ before loading ~counsel-projectile~,
-   the transformer setting is overwritten by loading the package. I am
-   considering to add a ~:package~ keyword in the transformer definition
-   to deal with this.
-
-3. Disabling the minor mode ~ivy-rich-mode~ will restore the transformers
-   to what they were before, but *not* necessarily to the 'built-in
-   default' one. For example, the default transformer for
-   ~ivy-switch-buffer~ is ~ivy-switch-buffer-transformer~ from the ~ivy~
-   package. But if you set the transformer to ~some-function~ before
-   enabling ~ivy-rich-mode~, disabling the minor mode will restore it to
-   ~some-function~ other than ~ivy-switch-buffer-transformer~.
-
-** ~ivy-switch-buffer~ Project Performance
-
-When having many open buffers, calling and navigating ~ivy-switch-buffers~
-might become slow when you have project-related columns. If that's the
-case, you can enable ~ivy-rich-project-root-cache-mode~, to cache each
-buffers project. The project for a buffer is cached until the buffer is
-killed, ~ivy-rich-project-root-cache-mode~ is disabled or
-~ivy-rich-clear-project-root-cache~ is called.
-
-
-* Screenshots and details
-:PROPERTIES:
-:CUSTOM_ID: h:A3BD2C78-CADB-4D4A-AB42-1D8ECD8AB2AD
-:END:
-
-** ~ivy-switch-buffer~
-
-[[file:screenshots/buffer.png]]
-
-To abbreviate paths using ~abbreviate-file-name~ (e.g. replace
-"/home/username" with "~")
+To abbreviate paths using ~abbreviate-file-name~ (e.g. replace "/home/username" with "~")
 
 #+begin_src emacs-lisp
 (setq ivy-rich-path-style 'abbrev)
 #+end_src
 
-Note that this may not affect remote files. To always show absolute
-path, set it to ='full= or ='absolute=. Any other value will show the file
-path relative to the project root or =default-Directory=.
+To always show absolute path, set it to ='full= or ='absolute=. Any other value will show the file path relative to the project root or =default-Directory=.
 
-There are two variables ~ivy-rich-parse-remote-buffer~ and
-~ivy-rich-parse-remote-file-path~ controls how remote buffers are
-processed, please refer to the docstring of them for more details if you
-have trouble using this function under ~tramp~.
+Note that this may not affect remote files. There are two variables ~ivy-rich-parse-remote-buffer~ and ~ivy-rich-parse-remote-file-path~ controls how remote buffers are processed, please refer to the docstring of them for more details if you have trouble using this function under ~tramp~.
 
-** ~counsel-M-x~
+*** Project Performance
 
-[[file:screenshots/counsel-m-x.png]]
+When having many open buffers, calling and navigating ~ivy-switch-buffers~ might become slow when you have project-related columns. If that's the case, you can enable ~ivy-rich-project-root-cache-mode~, to cache each buffers project. The project for a buffer is cached until the buffer is killed, ~ivy-rich-project-root-cache-mode~ is disabled or ~ivy-rich-clear-project-root-cache~ is called.
 
-** ~counsel-describe-variable~
+** Notes
 
-[[file:screenshots/counsel-describe-variable.png]]
+1. If you modify ~ivy-rich-display-transformers-list~, you may need to disable and re-enable ~ivy-rich-mode~ again to make the changes take effect.
 
-** ~counsel-recentf~
+2. If you define transformers for commands comes from neither ~ivy~ nor ~counsel~, e.g. ~counsel-projectile-*~, it currently may not take effect since if you enable ~ivy-rich-mode~ before loading ~counsel-projectile~, the transformer setting is overwritten by loading the package. Try to load all these packages before loading ~ivy-rich~.
 
-[[file:screenshots/counsel-recentf.png]]
-
-** ~counsel-bookmark~
-
-[[file:screenshots/counsel-bookmark.png]]
-
-** ~package-install~
-
-[[file:screenshots/package-install.png]]
-
+3. Disabling the minor mode ~ivy-rich-mode~ will restore the transformers to what they were before, but *not* necessarily to the 'built-in default' one. For example, the default transformer for ~ivy-switch-buffer~ is ~ivy-switch-buffer-transformer~ from the ~ivy~ package. But if you set the transformer to ~some-function~ before enabling ~ivy-rich-mode~, disabling the minor mode will restore it to ~some-function~ other than ~ivy-switch-buffer-transformer~.
 
 * Important Changes
 
-Since the version 0.1.0 of ~ivy-rich~, the transformer format can be
-customized. Variables from older version like
-~ivy-rich-switch-buffer-mode-max-length~ or
-~ivy-rich-switch-buffer-project-max-length~ has been deprecated since they
-are now packed into ~ivy-rich-display-transformers-list~ as stated in the
-[[#h:6A171A3A-50DF-42F6-B19B-321B160F198E][customization section]].
+Since the version 0.1.0 of ~ivy-rich~, the transformer format can be customized. Variables from older version like ~ivy-rich-switch-buffer-mode-max-length~ or ~ivy-rich-switch-buffer-project-max-length~ has been deprecated since they are now packed into ~ivy-rich-display-transformers-list~ as stated in the [[#h:6A171A3A-50DF-42F6-B19B-321B160F198E][customization section]].
 
-Supports for virtual buffers and shorten file paths in ~ivy-switch-buffer~
-are temporarily Removed.
+Supports for virtual buffers and shorten file paths in ~ivy-switch-buffer~ are temporarily Removed.
 
 * FAQ
 
-- Can I search buffers by ~major-mode~, ~project~ in ~ivy-switch-buffer~?
+** Can I search buffers by ~major-mode~, ~project~ in ~ivy-switch-buffer~?
 
-  No, as far as I know, you can not right now. ~ivy-rich~ provides just
-  transformers to display the original ~ivy~ candidates in a different
-  way. It does not modify the original candidates. At least for now I
-  have no idea how to add feature to search in the transformer
-  columns. It probably requires some change in ~ivy~.
+  No, as far as I know, you can not right now. ~ivy-rich~ provides just transformers to display the original ~ivy~ candidates in a different way. It does not modify the original candidates. At least for now I have no idea how to add feature to search in the transformer columns. It probably requires some change in ~ivy~.
 
-So you can not search the description of ~counsel-describe-function~
-neither.
+  So you can not search the description of ~counsel-describe-function~ neither.
+
+** How I can add icons for ~ivy-switch-buffer~?
+:PROPERTIES:
+:ID:       20201229-how-i-can-add-icons-for-ivy-switch-buffer
+:END:
+
+  The package [[https://github.com/domtronn/all-the-icons.el][all-the-icons.el]] provides functionality to use icon fonts easily in emacs. For example, you can define a transformer
+
+  #+begin_src elisp
+  (defun ivy-rich-switch-buffer-icon (candidate)
+    (with-current-buffer
+        (get-buffer candidate)
+      (let ((icon (all-the-icons-icon-for-mode major-mode)))
+        (if (symbolp icon)
+            (all-the-icons-icon-for-mode 'fundamental-mode)
+          icon))))
+  #+end_src
+
+  and add it to the plist value of ~ivy-switch-buffer~ in ~ivy-rich-display-transformers-list~
+
+  #+begin_src elisp
+  (setq ivy-rich-display-transformers-list
+        '(ivy-switch-buffer
+          (:columns
+           ((ivy-rich-switch-buffer-icon (:width 2))
+            (ivy-rich-candidate (:width 30))
+            (ivy-rich-switch-buffer-size (:width 7))
+            (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+            (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))
+            (ivy-rich-switch-buffer-project (:width 15 :face success))
+            (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))
+           :predicate
+           (lambda (cand) (get-buffer cand)))))
+  #+end_src
+
+  See also [[https://github.com/seagle0128/all-the-icons-ivy-rich][all-the-icons-ivy-rich]].
 
 * Related Packages
 
