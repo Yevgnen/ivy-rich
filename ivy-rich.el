@@ -398,7 +398,7 @@ The cache can be cleared manually by calling
                (car (project-roots project)))))))
 
 (defun ivy-rich-switch-buffer-root (candidate)
-  (when-let* ((dir (ivy-rich--switch-buffer-directory candidate)))
+  (when-let ((dir (ivy-rich--switch-buffer-directory candidate)))
     (let ((cached-value (if ivy-rich-project-root-cache-mode
                             (gethash dir ivy-rich--project-root-cache 'not-found)
                           'not-found)))
