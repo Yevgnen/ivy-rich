@@ -81,7 +81,8 @@
      ((ivy-rich-candidate (:width 0.8))
       (ivy-rich-file-last-modified-time (:face font-lock-comment-face))))
     counsel-bookmark
-    (:columns ((ivy-rich-bookmark-type)
+    (:columns ((ivy-rich-candidate (:width 0.3))
+               (ivy-rich-bookmark-type)
                (ivy-rich-bookmark-info)))
     package-install
     (:columns
