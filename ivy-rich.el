@@ -170,7 +170,7 @@ Usage:
 (ivy-rich-modify-column 'ivy-switch-buffer
                         'ivy-rich-switch-buffer-major-mode
                         '(:width 20 :face error))"
-  (if (evenp (length attrs))
+  (if (cl-evenp (length attrs))
       (let* ((trans (plist-get ivy-rich-display-transformers-list cmd))
              (props (cadr (assoc column (plist-get trans :columns)))))
         (while attrs
