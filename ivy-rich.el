@@ -467,10 +467,20 @@ The cache can be cleared manually by calling
 
 ;; Supports for `counsel-M-x', `counsel-describe-function', `counsel-describe-variable'
 (defun ivy-rich-counsel-function-docstring (candidate)
-  (let ((doc (replace-regexp-in-string
-              ":\\(\\(before\\|after\\)\\(-\\(while\\|until\\)\\)?\\|around\\|override\\|\\(filter-\\(args\\|return\\)\\)\\) advice:[ ]*‘.+?’[\r\n]+"
-              ""
-              (or (ignore-errors (documentation (intern-soft candidate))) ""))))
+  (let* (
+         ;; Stole from:
+         ;; https://github.com/minad/marginalia/blob/51f750994aaa0b6798d97366acfb0d397639af66/marginalia.el#L355
+         (regex (rx bos
+                    (1+ (seq (? "This function has ")
+                             (or ":before" ":after" ":around" ":override"
+                                 ":before-while" ":before-until" ":after-while"
+                                 ":after-until" ":filter-args" ":filter-return")
+                             " advice: " (0+ nonl) "\n"))
+                    "\n"))
+         (doc (replace-regexp-in-string
+               regex
+               ""
+               (or (ignore-errors (documentation (intern-soft candidate))) ""))))
     (if (string-match "^\\(.+\\)\\([\r\n]\\)?" doc)
         (setq doc (match-string 1 doc))
       "")))
