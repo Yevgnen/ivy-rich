@@ -1,0 +1,31 @@
+#+title: Screenshots
+#+date: <2020-12-29 Tue>
+
+* Screenshots
+:PROPERTIES:
+:CUSTOM_ID: h:A3BD2C78-CADB-4D4A-AB42-1D8ECD8AB2AD
+:END:
+
+** ~ivy-switch-buffer~
+
+[[file:screenshots/buffer.png]]
+
+** ~counsel-M-x~
+
+[[file:screenshots/counsel-m-x.png]]
+
+** ~counsel-describe-variable~
+
+[[file:screenshots/counsel-describe-variable.png]]
+
+** ~counsel-recentf~
+
+[[file:screenshots/counsel-recentf.png]]
+
+** ~counsel-bookmark~
+
+[[file:screenshots/counsel-bookmark.png]]
+
+** ~package-install~
+
+[[file:screenshots/package-install.png]]
