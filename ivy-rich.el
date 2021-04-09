@@ -211,6 +211,28 @@ Usage:
           (setq column-list (cdr column-list)))
       (error "Column/attributes are incorrectly specified"))))
 
+(defun ivy-rich-set-columns (cmd column-list)
+  "Set the CMD transformer's properties for a COLUMN-LIST.
+
+The :columns of the given command will be replaced by COLUMN-LIST.
+Each item in COLUMN-LIST is a two-item list comprised of a column and list
+of attribute key-value pairs.
+
+Usage:
+
+(ivy-rich-set-columns
+ 'counsel-recentf
+ '((file-name-nondirectory
+    (:width 0.2))
+   (ivy-rich-candidate
+    (:width 0.6))))"
+  (let* ((trans (plist-get ivy-rich-display-transformers-list cmd)))
+    (setq ivy-rich-display-transformers-list
+          (plist-put ivy-rich-display-transformers-list
+                     cmd
+                     (plist-put trans :columns column-list)))
+    (ivy-rich-set-display-transformer nil)))
+
 ;; Common Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defalias 'ivy-rich-candidate 'identity)
 

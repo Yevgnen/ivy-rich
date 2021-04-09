@@ -37,34 +37,31 @@ You can also define your own transformers, see [[id:20201229-how-i-can-add-icons
 
 Convenience functions exist for customizing column properties without rewriting the entire transformer definition
 
-- ~ivy-rich-modify-column~
-- ~ivy-rich-modify-columns~
+- ~ivy-rich-modify-column~ :: Update properties of existed transformer column.
+- ~ivy-rich-modify-columns~ :: Like ~ivy-rich-modify-column~, but for multiple columns.
+- ~ivy-rich-set-columns~ :: Set/Replace transformer columns.
 
-Below are two examples with ~use-package~ that use the default transformers, but with user-defined customizations.
+Below are two examples that use the default transformers, but with user-defined customizations.
 
 This example customizes the ~:width~ and ~:face~ properties of the major mode column in the ~ivy-switch-buffer~ transformer:
 
 #+begin_src elisp
-(use-package ivy-rich
-  :config
-  (ivy-rich-modify-column 'ivy-switch-buffer
-                          'ivy-rich-switch-buffer-major-mode
-                          '(:width 20 :face error)))
+(ivy-rich-modify-column
+ 'ivy-switch-buffer
+ 'ivy-rich-switch-buffer-major-mode
+ '(:width 20 :face error))
 #+end_src
 
-This example customizes properties of two columns of the ~ivy-switch-buffer~ transformer and shows some other configuration options via ~use-package~:
+This example customizes properties of two columns of the ~ivy-switch-buffer~ transformer:
 
 #+begin_src elisp
-(use-package ivy-rich
-  :hook (ivy-mode . ivy-rich-mode)
-  :custom (ivy-rich-path-style 'abbrev)
-  :config
-  (ivy-rich-modify-columns
-   'ivy-switch-buffer
-   '((ivy-rich-switch-buffer-size (:align right))
-     (ivy-rich-switch-buffer-major-mode (:width 20 :face error)))))
+(ivy-rich-modify-columns
+ 'ivy-switch-buffer
+ '((ivy-rich-switch-buffer-size (:align right))
+   (ivy-rich-switch-buffer-major-mode (:width 20 :face error))))
 #+end_src
 
+Refer to the docstring for more details.
 
 ** Additional settings for ~ivy-switch-buffer~
 
