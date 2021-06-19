@@ -41,6 +41,10 @@
   (require 'bookmark)
   (require 'project))
 
+;; load ivy-rich-magit if magit is available
+(when (require 'magit nil 'noerror)
+  (require 'ivy-rich-magit))
+
 (declare-function projectile-project-name "ext:projectile")
 (declare-function projectile-project-p "ext:projectile")
 (declare-function projectile-project-root "ext:projectile")
