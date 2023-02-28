@@ -390,7 +390,7 @@ or /a/…/f.el."
         ;; if valid filename, i.e. buffer visiting file:
         (if fn
             ;; return containing directory
-            (directory-file-name fn)
+            (file-name-directory fn)
           ;; else if mode explicitly offering list-buffers-directory, return that; else nil.
           ;; buffers that don't explicitly visit files, but would like to show a filename,
           ;; e.g. magit or dired, set the list-buffers-directory variable
